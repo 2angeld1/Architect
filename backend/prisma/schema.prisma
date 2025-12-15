@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Categorías de proyectos
+enum ProjectCategory {
+  residencial
+  comercial
+  industrial
+  institucional
+  mixto
+}
+
+// Estado de la reserva
+enum ReservationStatus {
+  pending      // Pendiente de pago
+  processing   // Procesando pago
+  confirmed    // Pago confirmado
+  cancelled    // Cancelada
+  completed    // Completada (archivos entregados)
+}
+
+// Tipo de reserva
+enum ReservationType {
+  purchase     // Compra directa
+  quote        // Solicitud de cotización
+}
+
+// Método de pago
+enum PaymentMethod {
+  card         // Tarjeta de crédito/débito
+  transfer     // Transferencia bancaria
+  quote        // Solo cotización (sin pago inmediato)
+}
+
+// Tipo de documento de identidad
+enum DocumentType {
+  dni
+  passport
+  ruc
+}
+
+// Modelo de Proyecto Arquitectónico
+model Project {
+  id          String          @id @default(uuid())
+  name        String
+  description String          @db.Text
+  category    ProjectCategory
+  price       Decimal         @db.Decimal(10, 2)
+  currency    String          @default("USD")
+  images      String[]
+  features    String[]
+  area        Int             // metros cuadrados
+  rooms       Int
+  bathrooms   Int
+  floors      Int
+  style       String
+  isActive    Boolean         @default(true)
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  reservations Reservation[]
+  
+  @@index([category])
+  @@index([isActive])
+}
+
+// Modelo de Comprador
+model Buyer {
+  id             String       @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String
+  phone          String
+  documentType   DocumentType
+  documentNumber String
+  address        String
+  city           String
+  state          String
+  country        String       @default("México")
+  postalCode     String
+  notes          String?      @db.Text
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  
+  reservations   Reservation[]
+  
+  @@index([email])
+}
+
+// Modelo de Información de Pago
+model PaymentInfo {
+  id                 String        @id @default(uuid())
+  paymentMethod      PaymentMethod
+  cardholderName     String?
+  
+  // Dirección de facturación
+  billingSameAsShipping Boolean    @default(true)
+  billingAddress     String?
+  billingCity        String?
+  billingState       String?
+  billingCountry     String?
+  billingPostalCode  String?
+  
+  // Stripe payment intent ID (cuando se procese el pago)
+  stripePaymentIntentId String?
+  stripeCustomerId      String?
+  
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  
+  reservation        Reservation?
+}
+
+// Modelo de Reserva
+model Reservation {
+  id              String            @id @default(uuid())
+  reservationNumber String          @unique
+  
+  projectId       String
+  project         Project           @relation(fields: [projectId], references: [id])
+  
+  buyerId         String
+  buyer           Buyer             @relation(fields: [buyerId], references: [id])
+  
+  paymentInfoId   String            @unique
+  paymentInfo     PaymentInfo       @relation(fields: [paymentInfoId], references: [id])
+  
+  status          ReservationStatus @default(pending)
+  type            ReservationType
+  
+  totalAmount     Decimal           @db.Decimal(10, 2)
+  currency        String            @default("USD")
+  
+  notes           String?           @db.Text
+  
+  // Timestamps
+  confirmedAt     DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
