@@ -1,79 +1,157 @@
-import { Home, Mail, Phone, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Home, Mail, Phone, MapPin, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-secondary-800 text-secondary-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="bg-secondary-900 text-secondary-300">
+      {/* Main Footer */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div className="lg:col-span-1">
+            <Link to="/" className="flex items-center space-x-3 mb-6">
+              <div className="w-11 h-11 bg-primary-600 rounded-xl flex items-center justify-center">
                 <Home className="w-6 h-6 text-white" />
               </div>
-              <span className="font-heading text-xl font-bold text-white">
+              <span className="font-heading text-2xl font-bold text-white">
                 Archiquect
               </span>
-            </div>
-            <p className="text-secondary-400 text-sm leading-relaxed">
-              Planos y proyectos arquitectónicos de alta calidad. 
-              Diseños únicos para hacer realidad tu espacio soñado.
+            </Link>
+            <p className="text-secondary-400 leading-relaxed mb-6">
+              Más de 15 años diseñando espacios que inspiran.
+              Planos arquitectónicos de alta calidad listos para construir.
             </p>
+            {/* Social Links */}
+            <div className="flex gap-3">
+              <a href="#" className="p-2.5 bg-secondary-800 hover:bg-primary-600 rounded-lg transition-colors">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" className="p-2.5 bg-secondary-800 hover:bg-primary-600 rounded-lg transition-colors">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a href="#" className="p-2.5 bg-secondary-800 hover:bg-primary-600 rounded-lg transition-colors">
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a href="#" className="p-2.5 bg-secondary-800 hover:bg-primary-600 rounded-lg transition-colors">
+                <Twitter className="w-5 h-5" />
+              </a>
+            </div>
           </div>
 
-          {/* Contact */}
+          {/* Quick Links */}
           <div>
-            <h3 className="font-heading text-lg font-semibold text-white mb-4">
-              Contacto
+            <h3 className="font-heading text-lg font-semibold text-white mb-6">
+              Navegación
             </h3>
             <ul className="space-y-3">
-              <li className="flex items-center space-x-3 text-sm">
-                <Mail className="w-4 h-4 text-primary-400" />
-                <span>contacto@archiquect.com</span>
+              <li>
+                <Link to="/" className="hover:text-primary-400 transition-colors">
+                  Inicio
+                </Link>
               </li>
-              <li className="flex items-center space-x-3 text-sm">
-                <Phone className="w-4 h-4 text-primary-400" />
-                <span>+1 (555) 123-4567</span>
+              <li>
+                <Link to="/proyectos" className="hover:text-primary-400 transition-colors">
+                  Proyectos
+                </Link>
               </li>
-              <li className="flex items-start space-x-3 text-sm">
-                <MapPin className="w-4 h-4 text-primary-400 mt-0.5" />
-                <span>Ciudad de México, México</span>
+              <li>
+                <a href="#categorias" className="hover:text-primary-400 transition-colors">
+                  Categorías
+                </a>
+              </li>
+              <li>
+                <a href="#nosotros" className="hover:text-primary-400 transition-colors">
+                  Nosotros
+                </a>
+              </li>
+              <li>
+                <Link to="/checkout" className="hover:text-primary-400 transition-colors">
+                  Cotizar
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Links */}
+          {/* Categories */}
           <div>
-            <h3 className="font-heading text-lg font-semibold text-white mb-4">
-              Enlaces
+            <h3 className="font-heading text-lg font-semibold text-white mb-6">
+              Categorías
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-3">
               <li>
-                <a href="#" className="hover:text-primary-400 transition-colors">
-                  Términos y Condiciones
+                <Link to="/proyectos" className="hover:text-primary-400 transition-colors">
+                  Casas Modernas
+                </Link>
+              </li>
+              <li>
+                <Link to="/proyectos" className="hover:text-primary-400 transition-colors">
+                  Casas Minimalistas
+                </Link>
+              </li>
+              <li>
+                <Link to="/proyectos" className="hover:text-primary-400 transition-colors">
+                  Casas de 2 Pisos
+                </Link>
+              </li>
+              <li>
+                <Link to="/proyectos" className="hover:text-primary-400 transition-colors">
+                  Casas Pequeñas
+                </Link>
+              </li>
+              <li>
+                <Link to="/proyectos" className="hover:text-primary-400 transition-colors">
+                  Departamentos
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="font-heading text-lg font-semibold text-white mb-6">
+              Contacto
+            </h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
+                <span>Av. Reforma 123, Col. Centro,<br />Ciudad de México, México</span>
+              </li>
+              <li>
+                <a href="tel:+525512345678" className="flex items-center gap-3 hover:text-primary-400 transition-colors">
+                  <Phone className="w-5 h-5 text-primary-400" />
+                  <span>+52 55 1234 5678</span>
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-primary-400 transition-colors">
-                  Política de Privacidad
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary-400 transition-colors">
-                  Preguntas Frecuentes
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary-400 transition-colors">
-                  Soporte
+                <a href="mailto:contacto@archiquect.com" className="flex items-center gap-3 hover:text-primary-400 transition-colors">
+                  <Mail className="w-5 h-5 text-primary-400" />
+                  <span>contacto@archiquect.com</span>
                 </a>
               </li>
             </ul>
           </div>
         </div>
+      </div>
 
-        <div className="border-t border-secondary-700 mt-8 pt-8 text-center text-sm text-secondary-400">
-          <p>&copy; {new Date().getFullYear()} Archiquect. Todos los derechos reservados.</p>
+      {/* Bottom Bar */}
+      <div className="border-t border-secondary-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-secondary-500 text-sm text-center md:text-left">
+              © {new Date().getFullYear()} Archiquect. Todos los derechos reservados.
+            </p>
+            <div className="flex gap-6 text-sm">
+              <a href="#" className="text-secondary-500 hover:text-primary-400 transition-colors">
+                Términos y Condiciones
+              </a>
+              <a href="#" className="text-secondary-500 hover:text-primary-400 transition-colors">
+                Política de Privacidad
+              </a>
+              <a href="#" className="text-secondary-500 hover:text-primary-400 transition-colors">
+                FAQ
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

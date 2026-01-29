@@ -1,12 +1,12 @@
-import { Check } from 'lucide-react';
+import { Check, Building2, User, CreditCard, ClipboardCheck } from 'lucide-react';
 import { useCheckoutStore } from '../../store/checkoutStore';
 import type { CheckoutStep } from '../../types';
 
-const steps: { id: CheckoutStep; label: string; shortLabel: string }[] = [
-  { id: 'project-selection', label: 'Selección de Proyecto', shortLabel: 'Proyecto' },
-  { id: 'buyer-info', label: 'Información del Comprador', shortLabel: 'Comprador' },
-  { id: 'payment-info', label: 'Información de Pago', shortLabel: 'Pago' },
-  { id: 'review', label: 'Revisión', shortLabel: 'Revisión' },
+const steps: { id: CheckoutStep; label: string; shortLabel: string; icon: React.ElementType }[] = [
+  { id: 'project-selection', label: 'Selección de Proyecto', shortLabel: 'Proyecto', icon: Building2 },
+  { id: 'buyer-info', label: 'Información del Comprador', shortLabel: 'Datos', icon: User },
+  { id: 'payment-info', label: 'Método de Pago', shortLabel: 'Pago', icon: CreditCard },
+  { id: 'review', label: 'Confirmación', shortLabel: 'Confirmar', icon: ClipboardCheck },
 ];
 
 const CheckoutStepper = () => {
@@ -38,13 +38,14 @@ const CheckoutStepper = () => {
   };
 
   return (
-    <nav className="mb-8">
+    <nav>
       <ol className="flex items-center justify-between">
         {steps.map((step, index) => {
           const isActive = step.id === currentStep;
           const isCompleted = isStepCompleted(step.id);
           const isPast = index < currentIndex;
           const canNavigate = canNavigateToStep(index);
+          const Icon = step.icon;
           
           return (
             <li key={step.id} className="flex-1 relative">
@@ -59,32 +60,32 @@ const CheckoutStepper = () => {
                 {/* Step circle */}
                 <div
                   className={`
-                    w-10 h-10 rounded-full flex items-center justify-center
-                    font-semibold text-sm transition-all duration-200
+                    w-12 h-12 rounded-2xl flex items-center justify-center
+                    font-semibold text-sm transition-all duration-300
                     ${isActive 
-                      ? 'bg-primary-600 text-white ring-4 ring-primary-100' 
+                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30 scale-110' 
                       : isCompleted || isPast
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-secondary-200 text-secondary-500'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-secondary-100 text-secondary-400'
                     }
-                    ${canNavigate && !isActive ? 'group-hover:ring-2 group-hover:ring-primary-200' : ''}
+                    ${canNavigate && !isActive ? 'group-hover:scale-105 group-hover:shadow-md' : ''}
                   `}
                 >
                   {isCompleted || isPast ? (
                     <Check className="w-5 h-5" />
                   ) : (
-                    index + 1
+                      <Icon className="w-5 h-5" />
                   )}
                 </div>
                 
                 {/* Step label */}
                 <span
                   className={`
-                    mt-2 text-xs font-medium hidden sm:block
+                    mt-3 text-sm font-medium hidden sm:block transition-colors
                     ${isActive 
                       ? 'text-primary-600' 
                       : isPast || isCompleted
-                        ? 'text-secondary-600'
+                      ? 'text-secondary-700'
                         : 'text-secondary-400'
                     }
                   `}
@@ -93,11 +94,11 @@ const CheckoutStepper = () => {
                 </span>
                 <span
                   className={`
-                    mt-2 text-xs font-medium sm:hidden
+                    mt-3 text-xs font-medium sm:hidden transition-colors
                     ${isActive 
                       ? 'text-primary-600' 
                       : isPast || isCompleted
-                        ? 'text-secondary-600'
+                      ? 'text-secondary-700'
                         : 'text-secondary-400'
                     }
                   `}
@@ -110,8 +111,9 @@ const CheckoutStepper = () => {
               {index < steps.length - 1 && (
                 <div
                   className={`
-                    absolute top-5 left-[calc(50%+20px)] right-[calc(-50%+20px)] h-0.5
-                    ${isPast || isCompleted ? 'bg-primary-600' : 'bg-secondary-200'}
+                    absolute top-6 left-[calc(50%+28px)] right-[calc(-50%+28px)] h-1 rounded-full
+                    transition-colors duration-300
+                    ${isPast || isCompleted ? 'bg-emerald-500' : 'bg-secondary-100'}
                   `}
                 />
               )}

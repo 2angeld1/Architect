@@ -8,11 +8,27 @@
   }
   
   body {
-    @apply bg-secondary-50 text-secondary-800 font-sans antialiased;
+    @apply bg-secondary-50 text-secondary-800 antialiased;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading;
+    @apply font-bold;
+      font-family: 'Outfit', sans-serif !important;
+      /* Force override */
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      @apply bg-secondary-100;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      @apply bg-secondary-300 rounded-full hover:bg-secondary-400 transition-colors;
   }
 }
 
@@ -22,34 +38,15 @@
   }
   
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
-  }
-  
-  .btn-secondary {
-    @apply btn bg-secondary-200 text-secondary-800 hover:bg-secondary-300 focus:ring-secondary-400;
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-md hover:shadow-lg hover:-translate-y-0.5;
   }
   
   .btn-outline {
     @apply btn border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500;
   }
   
-  .input {
-    @apply w-full px-4 py-3 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
-  }
-  
-  .input-error {
-    @apply input border-red-500 focus:ring-red-500;
-  }
-  
-  .label {
-    @apply block text-sm font-medium text-secondary-700 mb-2;
-  }
-  
   .card {
     @apply bg-white rounded-xl shadow-sm border border-secondary-100 overflow-hidden;
-  }
   
-  .card-hover {
-    @apply card hover:shadow-lg hover:border-primary-200 transition-all duration-300 cursor-pointer;
-  }
+}
 }

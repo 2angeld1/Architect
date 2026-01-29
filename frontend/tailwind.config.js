@@ -36,7 +36,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        heading: ['Playfair Display', 'serif'],
+        heading: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
       },
     },
   },
