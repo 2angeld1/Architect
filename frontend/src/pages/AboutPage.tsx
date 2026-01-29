@@ -11,7 +11,7 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <div className="relative bg-secondary-900 text-white pt-28 pb-24 overflow-hidden">
+          <div className="relative bg-secondary-900 text-white pt-36 pb-24 overflow-hidden">
         {heroImage && (
           <Reveal variants={fadeIn} className="absolute inset-0 w-full h-full">
             <>

@@ -10,7 +10,7 @@ const CategoriesPage = () => {
   return (
     <div className="min-h-screen bg-secondary-50">
       {/* Hero */}
-      <div className="bg-secondary-900 text-white pt-28 pb-16">
+          <div className="bg-secondary-900 text-white pt-36 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Reveal variants={fadeIn}>
             <div className="max-w-3xl">

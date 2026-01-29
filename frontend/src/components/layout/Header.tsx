@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingCart, Phone, Home } from 'lucide-react';
 import { useCheckoutStore } from '../../store/checkoutStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import MegaMenu from './MegaMenu';
 
 interface HeaderProps {
   transparent?: boolean;
@@ -53,18 +54,19 @@ const Header = ({ transparent = false }: HeaderProps) => {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBg}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        {/* Primary Row */}
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className={`w-11 h-11 ${isTransparent ? 'bg-white/20 backdrop-blur-sm' : 'bg-primary-600'} rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110`}>
-              <Home className={`w-6 h-6 ${isTransparent ? 'text-white' : 'text-white'}`} />
+            <div className={`w-10 h-10 ${isTransparent ? 'bg-white/20 backdrop-blur-sm' : 'bg-primary-600'} rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110`}>
+              <Home className={`w-5 h-5 ${isTransparent ? 'text-white' : 'text-white'}`} />
             </div>
-            <span className={`font-heading text-2xl font-bold ${textColor} transition-colors duration-300`}>
+            <span className={`font-heading text-xl font-bold ${textColor} transition-colors duration-300`}>
               Archiquect
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Primary Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
@@ -82,7 +84,7 @@ const Header = ({ transparent = false }: HeaderProps) => {
           </nav>
 
           {/* Right Section */}
-          <div className="hidden lg:flex items-center space-x-6">
+          <div className="hidden lg:flex items-center space-x-5">
             {/* Phone */}
             <a
               href="tel:+525512345678"
@@ -108,7 +110,7 @@ const Header = ({ transparent = false }: HeaderProps) => {
             {/* CTA Button */}
             <Link
               to="/checkout"
-              className={`px-5 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg ${isTransparent
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg ${isTransparent
                 ? 'bg-white text-primary-700 hover:bg-white/90'
                 : 'bg-primary-600 text-white hover:bg-primary-700'
                 }`}
@@ -124,6 +126,45 @@ const Header = ({ transparent = false }: HeaderProps) => {
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
+        </div>
+
+        {/* Secondary Row - Catalog Navigation */}
+        <div className={`hidden lg:flex items-center justify-center gap-8 h-12 border-t ${isTransparent ? 'border-white/10' : 'border-secondary-100'}`}>
+          <MegaMenu transparent={isTransparent} />
+
+          <Link
+            to="/proyectos"
+            className={`text-sm font-medium transition-colors relative group whitespace-nowrap ${textColor} ${linkHoverColor} flex items-center gap-1`}
+          >
+            Diseños de garajes
+          </Link>
+
+          <Link
+            to="/promociones"
+            className={`text-sm font-bold transition-colors relative group whitespace-nowrap ${isTransparent ? 'text-white hover:text-white/90' : 'text-rose-500 hover:text-rose-600'}`}
+          >
+            Promociones
+          </Link>
+
+          <Link
+            to="/construyendo-una-casa"
+            className={`text-sm font-medium transition-colors relative group whitespace-nowrap ${isActive('/construyendo-una-casa')
+              ? (isTransparent ? 'text-white font-bold' : 'text-primary-600 font-bold')
+              : `${textColor} ${linkHoverColor}`
+              }`}
+          >
+            Construyendo una casa
+          </Link>
+
+          <Link
+            to="/casas-ya-hechas"
+            className={`text-sm font-medium transition-colors relative group whitespace-nowrap ${isActive('/casas-ya-hechas')
+              ? (isTransparent ? 'text-white font-bold' : 'text-primary-600 font-bold')
+              : `${textColor} ${linkHoverColor}`
+              }`}
+          >
+            Casas ya hechas
+          </Link>
         </div>
 
         {/* Mobile Navigation */}

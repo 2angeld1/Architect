@@ -5,6 +5,7 @@ export interface Project {
   description: string;
   category: ProjectCategory;
   price: number;
+  originalPrice?: number;
   currency: string;
   images: string[];
   features: string[];

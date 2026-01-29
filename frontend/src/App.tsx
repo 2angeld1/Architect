@@ -7,6 +7,9 @@ import CategoriesPage from './pages/CategoriesPage'
 import CategoryDetailPage from './pages/CategoryDetailPage'
 import AboutPage from './pages/AboutPage'
 import CheckoutPage from './pages/CheckoutPage'
+import PromotionsPage from './pages/PromotionsPage'
+import BuildingGuidePage from './pages/BuildingGuidePage'
+import ReadyMadeHousesPage from './pages/ReadyMadeHousesPage'
 import ConfirmationPage from './pages/ConfirmationPage'
 
 function App() {
@@ -19,6 +22,9 @@ function App() {
         <Route path="categorias" element={<CategoriesPage />} />
         <Route path="categorias/:id" element={<CategoryDetailPage />} />
         <Route path="nosotros" element={<AboutPage />} />
+        <Route path="promociones" element={<PromotionsPage />} />
+        <Route path="construyendo-una-casa" element={<BuildingGuidePage />} />
+        <Route path="casas-ya-hechas" element={<ReadyMadeHousesPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="confirmacion/:reservationId" element={<ConfirmationPage />} />
       </Route>

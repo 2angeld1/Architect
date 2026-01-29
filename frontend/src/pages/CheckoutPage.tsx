@@ -42,7 +42,7 @@ const CheckoutPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary-100 to-secondary-50">
       {/* Header */}
-      <div className="bg-secondary-900 text-white pt-28 pb-12">
+      <div className="bg-secondary-900 text-white pt-36 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
