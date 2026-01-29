@@ -1,4 +1,5 @@
 import { Check, X } from 'lucide-react';
+import { comparisonFeatures } from '../../data/home';
 
 const ComparisonSection = () => {
   return (
@@ -29,22 +30,12 @@ const ComparisonSection = () => {
             </div>
 
             <ul className="space-y-4 font-sans">
-              <li className="flex items-start gap-3 text-secondary-600">
-                <X className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                <span>Tiempo de diseño: 3 a 6 meses</span>
-              </li>
-              <li className="flex items-start gap-3 text-secondary-600">
-                <X className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                <span>Costos elevados (4-10% del valor de obra)</span>
-              </li>
-              <li className="flex items-start gap-3 text-secondary-600">
-                <X className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                <span>Resultado final incierto hasta terminar</span>
-              </li>
-              <li className="flex items-start gap-3 text-secondary-600">
-                <X className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                <span>Costos extra por cada corrección</span>
-              </li>
+                          {comparisonFeatures.traditional.map((feature, idx) => (
+                              <li key={idx} className="flex items-start gap-3 text-secondary-600">
+                                  <X className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                  </li>
+              ))}
             </ul>
           </div>
 
@@ -64,22 +55,12 @@ const ComparisonSection = () => {
             </div>
 
             <ul className="space-y-4 font-sans">
-              <li className="flex items-start gap-3 text-secondary-800 font-medium">
-                <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Tiempo de entrega: Inmediato</span>
-              </li>
-              <li className="flex items-start gap-3 text-secondary-800 font-medium">
-                <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Ahorro de hasta 80% en diseño</span>
-              </li>
-              <li className="flex items-start gap-3 text-secondary-800 font-medium">
-                <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Ves exactamente lo que compras (3D/Planos)</span>
-              </li>
-              <li className="flex items-start gap-3 text-secondary-800 font-medium">
-                <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Documentación técnica completa incluida</span>
-              </li>
+                          {comparisonFeatures.archiquect.map((feature, idx) => (
+                              <li key={idx} className="flex items-start gap-3 text-secondary-800 font-medium">
+                                  <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                  </li>
+              ))}
             </ul>
 
             <div className="mt-8 pt-6 border-t border-secondary-100">

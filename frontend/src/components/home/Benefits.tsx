@@ -1,43 +1,4 @@
-import { Shield, Clock, Award, HeartHandshake, Truck, RefreshCw } from 'lucide-react';
-
-const benefits = [
-  {
-    icon: Shield,
-    title: 'Compra Segura',
-    description: 'Pagos protegidos y garantía de satisfacción en cada proyecto',
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    icon: Clock,
-    title: 'Entrega Inmediata',
-    description: 'Descarga tus planos al instante después de la compra',
-    color: 'bg-emerald-100 text-emerald-600',
-  },
-  {
-    icon: Award,
-    title: 'Calidad Premium',
-    description: 'Diseños que cumplen normativas locales e internacionales',
-    color: 'bg-amber-100 text-amber-600',
-  },
-  {
-    icon: HeartHandshake,
-    title: 'Soporte Experto',
-    description: 'Asesoría profesional durante todo el proceso',
-    color: 'bg-rose-100 text-rose-600',
-  },
-  {
-    icon: Truck,
-    title: 'Envío Gratis',
-    description: 'Documentación física sin costo adicional',
-    color: 'bg-violet-100 text-violet-600',
-  },
-  {
-    icon: RefreshCw,
-    title: 'Garantía de Cambio',
-    description: '30 días para cambiar tu proyecto si no te convence',
-    color: 'bg-cyan-100 text-cyan-600',
-  },
-];
+import { benefits } from '../../data/home';
 
 const Benefits = () => {
   return (

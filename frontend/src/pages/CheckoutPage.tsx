@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { useCheckoutStore } from '../store/checkoutStore';
 import CheckoutStepper from '../components/checkout/CheckoutStepper';
 import ProjectSelection from '../components/checkout/ProjectSelection';
 import BuyerInfoForm from '../components/checkout/BuyerInfoForm';
@@ -7,16 +5,10 @@ import PaymentInfoForm from '../components/checkout/PaymentInfoForm';
 import ReviewOrder from '../components/checkout/ReviewOrder';
 import { ShieldCheck, Truck, CreditCard, Building2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useCheckout } from '../hooks/useCheckout';
 
 const CheckoutPage = () => {
-  const { currentStep, selectedProject, goToStep } = useCheckoutStore();
-
-  // Si no hay proyecto seleccionado y no estamos en el primer paso, redirigir
-  useEffect(() => {
-    if (!selectedProject && currentStep !== 'project-selection') {
-      goToStep('project-selection');
-    }
-  }, [selectedProject, currentStep, goToStep]);
+  const { currentStep, selectedProject, formatPrice, showSidebar } = useCheckout();
 
   const renderStep = () => {
     return (
@@ -46,15 +38,6 @@ const CheckoutPage = () => {
       </AnimatePresence>
     );
   };
-
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: currency,
-    }).format(price);
-  };
-
-  const showSidebar = currentStep !== 'project-selection' && selectedProject;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary-100 to-secondary-50">
@@ -103,7 +86,7 @@ const CheckoutPage = () => {
           </div>
 
           {/* Sidebar - Order Summary */}
-          {showSidebar && (
+          {showSidebar && selectedProject && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}

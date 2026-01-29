@@ -24,6 +24,18 @@ export type ProjectCategory =
   | 'institucional'
   | 'mixto';
 
+export interface Category {
+  id: string | number;
+  name: string;
+  description?: string;
+  count: number;
+  image: string;
+  icon: any; // Using any to avoid complex Lucide type issues in global types
+  query: string;
+  color?: string;
+  subcategories: string[];
+}
+
 // Tipos para el comprador
 export interface BuyerInfo {
   firstName: string;

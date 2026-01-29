@@ -1,59 +1,23 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Edit2, 
-  Building2, 
-  User, 
-  CreditCard, 
-  MapPin, 
-  Mail, 
-  Phone,
-  FileText,
-  CheckCircle,
-  Loader2,
-  Sparkles,
-  ShieldCheck,
-  Clock
-} from 'lucide-react';
-import { useCheckoutStore } from '../../store/checkoutStore';
+import { Building2, CreditCard, FileText, User, Mail, Phone, MapPin, Clock, ShieldCheck, Edit2, CheckCircle, Loader2, Sparkles, ArrowLeft } from 'lucide-react';
+import { useReviewOrder } from '../../hooks/useReviewOrder';
 import Reveal from '../ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 
 const ReviewOrder = () => {
-  const navigate = useNavigate();
-  const { 
-    selectedProject, 
-    buyerInfo, 
-    paymentInfo, 
+  const {
+    selectedProject,
+    buyerInfo,
+    paymentInfo,
     reservationType,
-    prevStep, 
-    goToStep,
-    resetCheckout 
-  } = useCheckoutStore();
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
-
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: currency,
-    }).format(price);
-  };
-
-  const getPaymentMethodLabel = () => {
-    switch (paymentInfo?.paymentMethod) {
-      case 'card':
-        return 'Tarjeta de Crédito/Débito';
-      case 'transfer':
-        return 'Transferencia Bancaria';
-      case 'quote':
-        return 'Solicitud de Cotización';
-      default:
-        return 'No especificado';
-    }
-  };
+    isSubmitting,
+    acceptTerms,
+    setAcceptTerms,
+    formatPrice,
+    getPaymentMethodLabel,
+    handleConfirmReservation,
+    prevStep,
+    goToStep
+  } = useReviewOrder();
 
   const getPaymentIcon = () => {
     switch (paymentInfo?.paymentMethod) {
@@ -65,28 +29,6 @@ const ReviewOrder = () => {
         return <FileText className="w-6 h-6" />;
       default:
         return <CreditCard className="w-6 h-6" />;
-    }
-  };
-
-  const handleConfirmReservation = async () => {
-    if (!acceptTerms) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Simular llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generar ID de reserva mock
-      const reservationId = `RES-${Date.now()}`;
-      
-      // Limpiar el checkout y navegar a confirmación
-      resetCheckout();
-      navigate(`/confirmacion/${reservationId}`);
-    } catch (error) {
-      console.error('Error al procesar la reserva:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

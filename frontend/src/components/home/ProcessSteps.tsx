@@ -1,27 +1,4 @@
-import { Search, Download, Hammer, FileCheck } from 'lucide-react';
-
-const steps = [
-  {
-    icon: Search,
-    title: '1. Encuentra tu Diseño',
-    description: 'Explora nuestra colección de planos premium y usa los filtros para hallar el diseño que se adapta a tu terreno y estilo de vida.',
-  },
-  {
-    icon: Download,
-    title: '2. Descarga Inmediata',
-    description: 'Recibe los archivos digitales completos (PDF y CAD) al instante después de tu compra segura. Sin esperas.',
-  },
-  {
-    icon: FileCheck,
-    title: '3. Adapta y Tramita',
-    description: 'Nuestros planos incluyen toda la información técnica necesaria para que tu ingeniero local realice los trámites municipales.',
-  },
-  {
-    icon: Hammer,
-    title: '4. Construye tu Sueño',
-    description: 'Entrega los planos a tu contratista y comienza la construcción con la seguridad de un diseño arquitectónico profesional.',
-  },
-];
+import { processSteps } from '../../data/home';
 
 const ProcessSteps = () => {
   return (
@@ -46,10 +23,10 @@ const ProcessSteps = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, index) => (
+                  {processSteps.map((step, index) => (
             <div key={index} className="relative group">
               {/* Connector Line (Desktop only) */}
-              {index < steps.length - 1 && (
+                  {index < processSteps.length - 1 && (
                 <div className="hidden lg:block absolute top-8 left-1/2 w-full h-0.5 bg-secondary-700 -z-10 group-hover:bg-primary-500/50 transition-colors duration-500" />
               )}
               

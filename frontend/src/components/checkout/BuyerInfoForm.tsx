@@ -1,96 +1,17 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, User, MapPin, FileText } from 'lucide-react';
-import { useCheckoutStore } from '../../store/checkoutStore';
-import type { BuyerInfo } from '../../types';
+import { User, MapPin, FileText, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useBuyerInfo } from '../../hooks/useBuyerInfo';
 import Reveal from '../ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
+import FormInput from '../ui/FormInput';
 
 const BuyerInfoForm = () => {
-  const { buyerInfo, setBuyerInfo, nextStep, prevStep } = useCheckoutStore();
-  
-  const [formData, setFormData] = useState<BuyerInfo>(buyerInfo || {
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    documentType: 'dni',
-    documentNumber: '',
-    address: '',
-    city: '',
-    state: '',
-    country: 'México',
-    postalCode: '',
-    notes: '',
-  });
-
-  const [errors, setErrors] = useState<Partial<Record<keyof BuyerInfo, string>>>({});
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when field is modified
-    if (errors[name as keyof BuyerInfo]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof BuyerInfo, string>> = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'El nombre es requerido';
-    }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'El apellido es requerido';
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = 'El email es requerido';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email inválido';
-    }
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'El teléfono es requerido';
-    }
-    if (!formData.documentNumber.trim()) {
-      newErrors.documentNumber = 'El número de documento es requerido';
-    }
-    if (!formData.address.trim()) {
-      newErrors.address = 'La dirección es requerida';
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = 'La ciudad es requerida';
-    }
-    if (!formData.state.trim()) {
-      newErrors.state = 'El estado/provincia es requerido';
-    }
-    if (!formData.postalCode.trim()) {
-      newErrors.postalCode = 'El código postal es requerido';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-      setBuyerInfo(formData);
-      nextStep();
-    }
-  };
-
-  const inputClasses = (hasError: boolean) => `
-    w-full px-4 py-3 rounded-xl border-2 bg-secondary-50/50 
-    transition-all duration-200 outline-none
-    ${hasError
-      ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-      : 'border-secondary-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10'
-    }
-  `;
-
-  const labelClasses = "block text-sm font-medium text-secondary-700 mb-1.5";
+  const {
+    formData,
+    errors,
+    handleChange,
+    handleSubmit,
+    prevStep
+  } = useBuyerInfo();
 
   return (
     <div className="space-y-8">
@@ -121,81 +42,44 @@ const BuyerInfoForm = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label htmlFor="firstName" className={labelClasses}>Nombre *</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className={inputClasses(!!errors.firstName)}
-                  placeholder="Juan"
-                />
-                {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full" />
-                    {errors.firstName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className={labelClasses}>Apellido *</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className={inputClasses(!!errors.lastName)}
-                  placeholder="Pérez"
-                />
-                {errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full" />
-                    {errors.lastName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="email" className={labelClasses}>Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={inputClasses(!!errors.email)}
-                  placeholder="juan@ejemplo.com"
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full" />
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="phone" className={labelClasses}>Teléfono *</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className={inputClasses(!!errors.phone)}
-                  placeholder="+52 55 1234 5678"
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full" />
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
+              <FormInput
+                label="Nombre *"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                error={errors.firstName}
+                placeholder="Juan"
+              />
+              <FormInput
+                label="Apellido *"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                error={errors.lastName}
+                placeholder="Pérez"
+              />
+              <FormInput
+                label="Email *"
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                placeholder="juan@ejemplo.com"
+              />
+              <FormInput
+                label="Teléfono *"
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                error={errors.phone}
+                placeholder="+52 55 1234 5678"
+              />
             </div>
           </div>
         </Reveal>
@@ -214,14 +98,16 @@ const BuyerInfoForm = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label htmlFor="documentType" className={labelClasses}>Tipo de Documento *</label>
+              <div className="space-y-2">
+                <label htmlFor="documentType" className="flex items-center gap-2 text-sm font-bold text-secondary-700 ml-1">
+                  Tipo de Documento *
+                </label>
                 <select
                   id="documentType"
                   name="documentType"
                   value={formData.documentType}
                   onChange={handleChange}
-                  className={inputClasses(false)}
+                  className="w-full px-4 py-3 rounded-xl border-2 bg-secondary-50/50 border-secondary-200 focus:border-primary-500 transition-all outline-none"
                 >
                   <option value="dni">DNI / INE</option>
                   <option value="passport">Pasaporte</option>
@@ -229,24 +115,15 @@ const BuyerInfoForm = () => {
                 </select>
               </div>
 
-              <div>
-                <label htmlFor="documentNumber" className={labelClasses}>Número de Documento *</label>
-                <input
-                  type="text"
-                  id="documentNumber"
-                  name="documentNumber"
-                  value={formData.documentNumber}
-                  onChange={handleChange}
-                  className={inputClasses(!!errors.documentNumber)}
-                  placeholder="XXXX123456"
-                />
-                {errors.documentNumber && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full" />
-                    {errors.documentNumber}
-                  </p>
-                )}
-              </div>
+              <FormInput
+                label="Número de Documento *"
+                id="documentNumber"
+                name="documentNumber"
+                value={formData.documentNumber}
+                onChange={handleChange}
+                error={errors.documentNumber}
+                placeholder="XXXX123456"
+              />
             </div>
           </div>
         </Reveal>
@@ -265,95 +142,52 @@ const BuyerInfoForm = () => {
             </div>
 
             <div className="space-y-5">
-              <div>
-                <label htmlFor="address" className={labelClasses}>Dirección *</label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className={inputClasses(!!errors.address)}
-                  placeholder="Calle Principal 123, Col. Centro"
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full" />
-                    {errors.address}
-                  </p>
-                )}
-              </div>
+              <FormInput
+                label="Dirección *"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                error={errors.address}
+                placeholder="Calle Principal 123, Col. Centro"
+              />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label htmlFor="city" className={labelClasses}>Ciudad *</label>
-                  <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    className={inputClasses(!!errors.city)}
-                    placeholder="Ciudad de México"
-                  />
-                  {errors.city && (
-                    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                      <span className="w-1 h-1 bg-red-500 rounded-full" />
-                      {errors.city}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="state" className={labelClasses}>Estado / Provincia *</label>
-                  <input
-                    type="text"
-                    id="state"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleChange}
-                    className={inputClasses(!!errors.state)}
-                    placeholder="CDMX"
-                  />
-                  {errors.state && (
-                    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                      <span className="w-1 h-1 bg-red-500 rounded-full" />
-                      {errors.state}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="country" className={labelClasses}>País</label>
-                  <input
-                    type="text"
-                    id="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    className={inputClasses(false)}
-                    placeholder="México"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="postalCode" className={labelClasses}>Código Postal *</label>
-                  <input
-                    type="text"
-                    id="postalCode"
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleChange}
-                    className={inputClasses(!!errors.postalCode)}
-                    placeholder="06600"
-                  />
-                  {errors.postalCode && (
-                    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                      <span className="w-1 h-1 bg-red-500 rounded-full" />
-                      {errors.postalCode}
-                    </p>
-                  )}
-                </div>
+                <FormInput
+                  label="Ciudad *"
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  error={errors.city}
+                  placeholder="Ciudad de México"
+                />
+                <FormInput
+                  label="Estado / Provincia *"
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  error={errors.state}
+                  placeholder="CDMX"
+                />
+                <FormInput
+                  label="País"
+                  id="country"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                  placeholder="México"
+                />
+                <FormInput
+                  label="Código Postal *"
+                  id="postalCode"
+                  name="postalCode"
+                  value={formData.postalCode}
+                  onChange={handleChange}
+                  error={errors.postalCode}
+                  placeholder="06600"
+                />
               </div>
             </div>
           </div>
@@ -361,18 +195,15 @@ const BuyerInfoForm = () => {
 
         {/* Notes */}
         <Reveal variants={slideUp} delay={0.4}>
-          <div>
-            <label htmlFor="notes" className={labelClasses}>Notas adicionales (opcional)</label>
-            <textarea
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              rows={3}
-              className={`${inputClasses(false)} resize-none`}
-              placeholder="¿Algún comentario o requerimiento especial?"
-            />
-          </div>
+          <FormInput
+            label="Notas adicionales (opcional)"
+            isTextArea
+            id="notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            placeholder="¿Algún comentario o requerimiento especial?"
+          />
         </Reveal>
 
         {/* Navigation buttons */}

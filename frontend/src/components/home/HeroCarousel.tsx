@@ -1,72 +1,17 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, Search, Home, Building2, Warehouse, Loader2 } from 'lucide-react';
-import { searchPhotos, type UnsplashPhoto } from '../../services/unsplash';
-
-interface HeroSlide {
-  image: string;
-  title: string;
-  subtitle: string;
-  credit?: string;
-}
-
-const quickCategories = [
-  { icon: Home, label: 'Casas', count: '320+' },
-  { icon: Building2, label: 'Departamentos', count: '85+' },
-  { icon: Warehouse, label: 'Comercial', count: '45+' },
-];
+import { ArrowRight, ChevronLeft, ChevronRight, Search, Loader2 } from 'lucide-react';
+import { useHeroCarousel } from '../../hooks/useHeroCarousel';
+import { quickCategories } from '../../data/home';
 
 const HeroCarousel = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Fetch images from Unsplash
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const photos = await searchPhotos('modern house architecture', 3);
-        if (photos.length > 0) {
-          const newSlides = photos.map((photo: UnsplashPhoto, index: number) => ({
-            image: `${photo.urls.raw}&w=1920&q=80&fit=crop`,
-            title: index === 0 ? 'Diseña tu Hogar Ideal' : index === 1 ? 'Arquitectura Moderna' : 'Tu Proyecto, Tu Estilo',
-            subtitle: index === 0 ? 'Más de 500 proyectos arquitectónicos listos para construir' : index === 1 ? 'Planos detallados con las últimas tendencias de diseño' : 'Casas modernas, clásicas y contemporáneas',
-            credit: photo.user.name,
-          }));
-          setSlides(newSlides);
-        }
-      } catch (error) {
-        console.error('Error loading images', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchImages();
-  }, []);
-
-  useEffect(() => {
-    if (slides.length > 0) {
-      const timer = setInterval(() => {
-        nextSlide();
-      }, 6000);
-      return () => clearInterval(timer);
-    }
-  }, [currentSlide, slides.length]);
-
-  const nextSlide = () => {
-    if (isTransitioning || slides.length === 0) return;
-    setIsTransitioning(true);
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  const prevSlide = () => {
-    if (isTransitioning || slides.length === 0) return;
-    setIsTransitioning(true);
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
+    const {
+        slides,
+        currentSlide,
+        isLoading,
+        nextSlide,
+        prevSlide,
+        goToSlide
+    } = useHeroCarousel();
 
   if (isLoading) {
     return (
@@ -170,7 +115,7 @@ const HeroCarousel = () => {
           {slides.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentSlide(index)}
+                  onClick={() => goToSlide(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === currentSlide 
                   ? 'w-8 bg-primary-500' 

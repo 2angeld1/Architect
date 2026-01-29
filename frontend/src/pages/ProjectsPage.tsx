@@ -1,74 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, Building2, Home, Bed, Bath, Square, Heart, Grid3X3, List, X, ChevronDown, ArrowRight } from 'lucide-react';
+import { Search, SlidersHorizontal, Building2, Grid3X3, List, X, ChevronDown } from 'lucide-react';
 import { mockProjects } from '../mocks/projects';
-// import { useCheckoutStore } from '../store/checkoutStore';
-import { searchPhotos } from '../services/unsplash';
-import type { Project, ProjectCategory } from '../types';
+import { useProjects } from '../hooks/useProjects';
+import type { ProjectCategory } from '../types';
 import Reveal from '../components/ui/Reveal';
 import { slideUp, fadeIn } from '../animations/variants';
+import ProjectCard from '../components/ui/ProjectCard';
+import { allCategories } from '../mocks/categories';
 
-const categories: { value: ProjectCategory | 'all'; label: string; icon: React.ElementType }[] = [
+const filterCategories: { value: ProjectCategory | 'all'; label: string; icon: React.ElementType }[] = [
   { value: 'all', label: 'Todos', icon: Grid3X3 },
-  { value: 'residencial', label: 'Residencial', icon: Home },
-  { value: 'comercial', label: 'Comercial', icon: Building2 },
+  ...allCategories.map(c => ({
+    value: c.name.toLowerCase() as ProjectCategory,
+    label: c.name,
+    icon: c.icon as React.ElementType
+  }))
 ];
 
 const ProjectsPage = () => {
-  const navigate = useNavigate();
-  // const { selectProject, setReservationType, setCurrentStep } = useCheckoutStore(); // Unused now
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<ProjectCategory | 'all'>('all');
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'newest'>('newest');
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [projectImages, setProjectImages] = useState<Record<string, string>>({});
-
-  // Fetch project images from Unsplash
-  useEffect(() => {
-    const fetchImages = async () => {
-      const photos = await searchPhotos('modern house architecture', 12);
-      const imageMap: Record<string, string> = {};
-      mockProjects.forEach((project, index) => {
-        if (photos[index % photos.length]) {
-          imageMap[project.id] = `${photos[index % photos.length].urls.raw}&w=600&q=80&fit=crop`;
-        }
-      });
-      setProjectImages(imageMap);
-    };
-    fetchImages();
-  }, []);
-
-  const filteredProjects = mockProjects
-    .filter(project => {
-      const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'price-asc') return a.price - b.price;
-      if (sortBy === 'price-desc') return b.price - a.price;
-      return 0; // newest - default order
-    });
-
-  const handleSelectProject = (project: Project) => {
-    // selectProject(project); // Ya no seleccionamos globalmente aquí, se hace en el detalle
-    navigate(`/proyectos/${project.id}`);
-  };
-
-  const toggleFavorite = (id: string) => {
-    setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: currency,
-    }).format(price);
-  };
+  const {
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+    showFilters,
+    setShowFilters,
+    viewMode,
+    setViewMode,
+    sortBy,
+    setSortBy,
+    favorites,
+    projectImages,
+    filteredProjects,
+    toggleFavorite,
+  } = useProjects();
 
   return (
     <div className="min-h-screen bg-secondary-50">
@@ -115,7 +79,7 @@ const ProjectsPage = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters - Sticky container */}
+          {/* Sidebar Filters */}
           <aside className={`lg:w-72 flex-shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white rounded-2xl shadow-sm border border-secondary-100 p-6 sticky top-24">
               <div className="flex items-center justify-between mb-6">
@@ -132,7 +96,7 @@ const ProjectsPage = () => {
               <div className="mb-6">
                 <h4 className="font-medium text-secondary-700 mb-3 text-sm uppercase tracking-wide">Categoría</h4>
                 <div className="space-y-2">
-                  {categories.map((cat) => (
+                  {filterCategories.map((cat) => (
                     <button
                       key={cat.value}
                       onClick={() => setSelectedCategory(cat.value)}
@@ -161,21 +125,6 @@ const ProjectsPage = () => {
                   <button className="w-full px-4 py-3 hover:bg-secondary-50 rounded-xl text-left text-secondary-600 transition-colors">
                     Más de $4,000 USD
                   </button>
-                </div>
-              </div>
-
-              {/* Bedrooms */}
-              <div>
-                <h4 className="font-medium text-secondary-700 mb-3 text-sm uppercase tracking-wide">Habitaciones</h4>
-                <div className="flex flex-wrap gap-2">
-                  {[1, 2, 3, 4, '5+'].map((num) => (
-                    <button
-                      key={num}
-                      className="px-4 py-2 bg-secondary-100 hover:bg-primary-50 hover:text-primary-700 rounded-lg text-secondary-600 font-medium transition-colors"
-                    >
-                      {num}
-                    </button>
-                  ))}
                 </div>
               </div>
             </div>
@@ -231,81 +180,13 @@ const ProjectsPage = () => {
               }>
                 {filteredProjects.map((project, idx) => (
                   <Reveal key={project.id} variants={slideUp} delay={idx * 0.1}>
-                    <article
-                      className={`group bg-white rounded-2xl overflow-hidden border border-secondary-100 hover:border-primary-200 shadow-sm hover:shadow-xl transition-all duration-300 ${viewMode === 'list' ? 'flex' : ''
-                        }`}
-                    >
-                      {/* Image */}
-                      <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-72 flex-shrink-0' : 'aspect-[4/3]'}`}>
-                        {projectImages[project.id] ? (
-                          <img
-                            src={projectImages[project.id]}
-                            alt={project.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                            <Building2 className="w-12 h-12 text-primary-400" />
-                          </div>
-                        )}
-
-                        {/* Category Badge */}
-                        <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-bold text-secondary-700 uppercase tracking-wide">
-                          {project.category}
-                        </span>
-
-                        {/* Favorite */}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); toggleFavorite(project.id); }}
-                          className={`absolute top-4 right-4 p-2 rounded-full backdrop-blur-sm transition-all ${favorites.includes(project.id)
-                            ? 'bg-rose-500 text-white'
-                            : 'bg-white/90 text-secondary-600 hover:text-rose-500'
-                            }`}
-                        >
-                          <Heart className={`w-5 h-5 ${favorites.includes(project.id) ? 'fill-current' : ''}`} />
-                        </button>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-5 flex-1">
-                        <h3 className="font-heading text-lg font-bold text-secondary-900 mb-2 group-hover:text-primary-600 transition-colors">
-                          {project.name}
-                        </h3>
-                        <p className="text-secondary-500 text-sm line-clamp-2 mb-4">
-                          {project.description}
-                        </p>
-
-                        {/* Specs */}
-                        <div className="flex items-center gap-4 mb-4 text-secondary-600">
-                          <div className="flex items-center gap-1.5">
-                            <Bed className="w-4 h-4 text-secondary-400" />
-                            <span className="text-sm font-medium">{project.rooms}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Bath className="w-4 h-4 text-secondary-400" />
-                            <span className="text-sm font-medium">{project.bathrooms}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Square className="w-4 h-4 text-secondary-400" />
-                            <span className="text-sm font-medium">{project.area}m²</span>
-                          </div>
-                        </div>
-
-                        {/* Price & CTA */}
-                        <div className="flex items-center justify-between pt-4 border-t border-secondary-100">
-                          <span className="text-xl font-bold text-primary-600">
-                            {formatPrice(project.price, project.currency)}
-                          </span>
-                          <button
-                            onClick={() => handleSelectProject(project)}
-                            className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 hover:underline transition-colors"
-                          >
-                            Ver detalles
-                            <ArrowRight className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </article>
+                    <ProjectCard
+                      project={project}
+                      viewMode={viewMode}
+                      isFavorite={favorites.includes(project.id)}
+                      onToggleFavorite={(id) => toggleFavorite(id)}
+                      imageUrl={projectImages[project.id]}
+                    />
                   </Reveal>
                 ))}
               </div>

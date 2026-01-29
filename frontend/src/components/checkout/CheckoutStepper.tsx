@@ -1,18 +1,12 @@
-import { Check, Building2, User, CreditCard, ClipboardCheck } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useCheckoutStore } from '../../store/checkoutStore';
 import type { CheckoutStep } from '../../types';
-
-const steps: { id: CheckoutStep; label: string; shortLabel: string; icon: React.ElementType }[] = [
-  { id: 'project-selection', label: 'Selección de Proyecto', shortLabel: 'Proyecto', icon: Building2 },
-  { id: 'buyer-info', label: 'Información del Comprador', shortLabel: 'Datos', icon: User },
-  { id: 'payment-info', label: 'Método de Pago', shortLabel: 'Pago', icon: CreditCard },
-  { id: 'review', label: 'Confirmación', shortLabel: 'Confirmar', icon: ClipboardCheck },
-];
+import { checkoutSteps } from '../../data/checkout';
 
 const CheckoutStepper = () => {
   const { currentStep, goToStep, selectedProject, buyerInfo, paymentInfo } = useCheckoutStore();
   
-  const currentIndex = steps.findIndex(s => s.id === currentStep);
+  const currentIndex = checkoutSteps.findIndex(s => s.id === currentStep);
   
   const isStepCompleted = (stepId: CheckoutStep) => {
     switch (stepId) {
@@ -40,7 +34,7 @@ const CheckoutStepper = () => {
   return (
     <nav>
       <ol className="flex items-center justify-between">
-        {steps.map((step, index) => {
+        {checkoutSteps.map((step, index) => {
           const isActive = step.id === currentStep;
           const isCompleted = isStepCompleted(step.id);
           const isPast = index < currentIndex;
@@ -108,7 +102,7 @@ const CheckoutStepper = () => {
               </button>
               
               {/* Connector line */}
-              {index < steps.length - 1 && (
+              {index < checkoutSteps.length - 1 && (
                 <div
                   className={`
                     absolute top-6 left-[calc(50%+28px)] right-[calc(-50%+28px)] h-1 rounded-full

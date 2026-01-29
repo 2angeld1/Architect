@@ -1,43 +1,12 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, ArrowRight, CheckCircle2, Play, MapPin, Phone, Mail } from 'lucide-react';
-import { searchPhotos } from '../services/unsplash';
-import { aboutStats, aboutValues, aboutTeam } from '../mocks/about';
+import { aboutStats, aboutValues, aboutTeam } from '../data/about';
+import { useAboutPage } from '../hooks/useAboutPage';
 import Reveal from '../components/ui/Reveal';
 import { slideUp, fadeIn, slideInFromLeft, slideInFromRight } from '../animations/variants';
 
 const AboutPage = () => {
-  const [heroImage, setHeroImage] = useState('');
-  const [teamImages, setTeamImages] = useState<Record<string, string>>({});
-  const [officeImage, setOfficeImage] = useState('');
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      // Hero image
-      const heroPhotos = await searchPhotos('architecture office team modern', 1);
-      if (heroPhotos.length > 0) {
-        setHeroImage(`${heroPhotos[0].urls.raw}&w=1920&q=85&fit=crop`);
-      }
-
-      // Office image
-      const officePhotos = await searchPhotos('modern architecture office interior', 1);
-      if (officePhotos.length > 0) {
-        setOfficeImage(`${officePhotos[0].urls.raw}&w=800&q=85&fit=crop`);
-      }
-
-      // Team images
-      for (const member of aboutTeam) {
-        const photos = await searchPhotos(member.query, 1);
-        if (photos.length > 0) {
-          setTeamImages(prev => ({
-            ...prev,
-            [member.name]: `${photos[0].urls.raw}&w=400&q=85&fit=crop&crop=faces`,
-          }));
-        }
-      }
-    };
-    fetchImages();
-  }, []);
+    const { heroImage, teamImages, officeImage } = useAboutPage();
 
   return (
     <div className="min-h-screen bg-white">
@@ -180,7 +149,7 @@ const AboutPage = () => {
             {aboutValues.map((value, index) => (
               <Reveal key={index} variants={slideUp} delay={index * 0.1} className="h-full">
                 <div 
-                  className="bg-white p-6 rounded-2xl border border-secondary-100 hover:border-primary-200 hover:shadow-xl transition-all duration-300 group h-full"
+                        className="bg-white p-6 rounded-2xl border border-secondary-100 hover:border-primary-200 hover:shadow-xl transition-all duration-300 group h-full"
                 >
                   <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-primary-100 group-hover:scale-110 transition-all">
                     <value.icon className="w-7 h-7 text-primary-600" />

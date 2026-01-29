@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Ruler, 
   Bath, 
@@ -18,72 +16,30 @@ import {
   Maximize2
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { mockProjects } from '../mocks/projects';
-import { useCheckoutStore } from '../store/checkoutStore';
-import { searchPhotos } from '../services/unsplash';
+import { useProjectDetail } from '../hooks/useProjectDetail';
 import Reveal from '../components/ui/Reveal';
 import { fadeIn, slideUp } from '../animations/variants';
 
 const ProjectDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { selectProject, setReservationType } = useCheckoutStore();
-  
-  const [project, setProject] = useState(mockProjects.find(p => p.id === id));
-  const [projectImages, setProjectImages] = useState<string[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState<'overview' | 'features' | 'plans'>('overview');
-
-  useEffect(() => {
-    const found = mockProjects.find(p => p.id === id);
-    if (found) {
-      setProject(found);
-      searchPhotos('modern luxury house architecture', 10).then(photos => {
-        if (photos.length > 0) {
-          setProjectImages(photos.map(p => `${p.urls.regular}`));
-        }
-      });
-    } else {
-      navigate('/proyectos');
-    }
-  }, [id, navigate]);
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % projectImages.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + projectImages.length) % projectImages.length);
-  };
-
-  const handleBuyPlan = () => {
-    if (project) {
-      selectProject(project);
-      setReservationType('purchase');
-      navigate('/checkout');
-    }
-  };
-
-  const handleRequestQuote = () => {
-    if (project) {
-      selectProject(project);
-      setReservationType('quote');
-      navigate('/checkout');
-    }
-  };
-
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: currency,
-    }).format(price);
-  };
+    const {
+        project,
+        projectImages,
+        currentImageIndex,
+        setCurrentImageIndex,
+        activeTab,
+        setActiveTab,
+        nextImage,
+        prevImage,
+        handleBuyPlan,
+        handleRequestQuote,
+        formatPrice
+    } = useProjectDetail();
 
   if (!project) return null;
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      {/* Hero Section (Reverted to original full-width style) */}
+          {/* Hero Section */}
       <div className="relative h-[65vh] min-h-[500px] bg-secondary-900 overflow-hidden">
         {projectImages[0] && (
           <motion.img 
@@ -125,7 +81,7 @@ const ProjectDetailPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-20">
-        {/* Stats Grid - Overlapping the Hero (Reverted to original style) */}
+              {/* Stats Grid - Overlapping the Hero */}
         <div className="-mt-20 lg:-mt-24 mb-12">
           <Reveal variants={slideUp} delay={0.1}>
              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-secondary-100 grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-secondary-100">
@@ -157,7 +113,7 @@ const ProjectDetailPage = () => {
           {/* Main Content Column */}
           <div className="lg:col-span-2 space-y-10">
             
-            {/* Gallery Carousel (Kept the new style, positioned here) */}
+                      {/* Gallery Carousel */}
             <Reveal variants={fadeIn} delay={0.2}>
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-2">
@@ -298,7 +254,6 @@ const ProjectDetailPage = () => {
                      </motion.div>
                    )}
 
-                   {/* Other tabs logic remains similar but simplified/cleaned for brevity */}
                    {activeTab === 'features' && (
                       <motion.div key="features" {...fadeIn}>
                          <div className="grid md:grid-cols-2 gap-8">
@@ -343,7 +298,7 @@ const ProjectDetailPage = () => {
             </div>
           </div>
 
-          {/* Sticky Sidebar (Unchanged logic, just layout context) */}
+                  {/* Sticky Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-28 space-y-6">
               <div className="bg-white rounded-2xl p-6 shadow-xl border border-secondary-100 relative overflow-hidden">
@@ -361,7 +316,7 @@ const ProjectDetailPage = () => {
                       {formatPrice(project.price * 1.2, project.currency)}
                     </span> 
                     <span className="px-2 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-bold rounded-full uppercase tracking-wide">
-                      Oferta Limitada
+                                          Oferta Limitada
                     </span>
                   </div>
                 </div>

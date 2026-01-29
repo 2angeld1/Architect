@@ -1,54 +1,17 @@
-import { useState, useEffect } from 'react';
 import { Home, Ruler, Bath, Building2, Check, Sparkles, ArrowRight } from 'lucide-react';
-import { useCheckoutStore } from '../../store/checkoutStore';
 import { mockProjects } from '../../mocks/projects';
-import { searchPhotos } from '../../services/unsplash';
-import type { Project } from '../../types';
+import { useProjectSelection } from '../../hooks/useProjectSelection';
 import Reveal from '../ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 
 const ProjectSelection = () => {
-  const { 
-    selectedProject, 
-    selectProject, 
-    setReservationType, 
-    nextStep,
-  } = useCheckoutStore();
-
-  const [projectImages, setProjectImages] = useState<Record<string, string>>({});
-
-  // Fetch project images
-  useEffect(() => {
-    const fetchImages = async () => {
-      const photos = await searchPhotos('modern house architecture', 12);
-      const imageMap: Record<string, string> = {};
-      mockProjects.forEach((project, index) => {
-        if (photos[index % photos.length]) {
-          imageMap[project.id] = `${photos[index % photos.length].urls.raw}&w=400&q=80&fit=crop`;
-        }
-      });
-      setProjectImages(imageMap);
-    };
-    fetchImages();
-  }, []);
-
-  const handleSelectProject = (project: Project) => {
-    selectProject(project);
-    setReservationType('purchase');
-  };
-
-  const handleContinue = () => {
-    if (selectedProject) {
-      nextStep();
-    }
-  };
-
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: currency,
-    }).format(price);
-  };
+  const {
+    selectedProject,
+    projectImages,
+    handleSelectProject,
+    handleContinue,
+    formatPrice
+  } = useProjectSelection();
 
   return (
     <div className="space-y-8">
@@ -138,7 +101,7 @@ const ProjectSelection = () => {
                       <span className="text-xs text-secondary-400">Área</span>
                     </div>
                     <div className="flex flex-col items-center text-center">
-                      <Home className="w-4 h-4 text-secondary-400 mb-1" />
+                      < Home className="w-4 h-4 text-secondary-400 mb-1" />
                       <span className="text-sm font-bold text-secondary-900">{project.rooms}</span>
                       <span className="text-xs text-secondary-400">Habitaciones</span>
                     </div>

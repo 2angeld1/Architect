@@ -1,33 +1,7 @@
 import { ArrowRight, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { searchPhotos } from '../../services/unsplash';
-
-const articles = [
-  {
-    id: 1,
-    title: 'Guía 2026: Costos reales de construir una casa',
-    category: 'Finanzas',
-    excerpt: 'Analizamos los precios actuales de materiales y mano de obra para que planifiques tu presupuesto sin sorpresas.',
-    date: 'Ene 24, 2026',
-    query: 'construction budget cost',
-  },
-  {
-    id: 2,
-    title: '¿Cómo elegir el terreno perfecto?',
-    category: 'Consejos',
-    excerpt: '10 factores clave que debes revisar antes de comprar un lote: orientación, suelo, servicios y normativa.',
-    date: 'Ene 18, 2026',
-    query: 'land measurement surveyor',
-  },
-  {
-    id: 3,
-    title: 'Tendencias de Arquitectura Sostenible',
-    category: 'Diseño',
-    excerpt: 'Descubre cómo los nuevos materiales y diseños pasivos pueden ahorrarte hasta un 40% en energía.',
-    date: 'Ene 10, 2026',
-    query: 'sustainable modern house green',
-  },
-];
+import { resourcesArticles } from '../../data/home';
 
 const ResourcesSection = () => {
   const [images, setImages] = useState<Record<number, string>>({});
@@ -35,7 +9,7 @@ const ResourcesSection = () => {
   useEffect(() => {
     const fetchImages = async () => {
       // Fetch custom images for each article query
-      for (const article of articles) {
+        for (const article of resourcesArticles) {
         try {
           const photos = await searchPhotos(article.query, 1);
           if (photos.length > 0) {
@@ -74,7 +48,7 @@ const ResourcesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {articles.map((article) => (
+                  {resourcesArticles.map((article) => (
             <article key={article.id} className="group cursor-pointer flex flex-col h-full">
               <div className="relative aspect-[16/10] overflow-hidden rounded-2xl mb-5">
                 {images[article.id] ? (

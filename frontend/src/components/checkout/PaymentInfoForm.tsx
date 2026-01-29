@@ -1,106 +1,20 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, CreditCard, Building2, FileText, Lock, ShieldCheck, Wallet } from 'lucide-react';
-import { useCheckoutStore } from '../../store/checkoutStore';
-import type { PaymentInfo } from '../../types';
+import { CreditCard, Building2, FileText, Lock, ShieldCheck, Wallet, ArrowLeft, ArrowRight } from 'lucide-react';
+import { usePaymentInfo } from '../../hooks/usePaymentInfo';
 import Reveal from '../ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
+import { paymentMethods } from '../../data/checkout';
+import FormInput from '../ui/FormInput';
 
 const PaymentInfoForm = () => {
-  const { paymentInfo, setPaymentInfo, nextStep, prevStep, reservationType } = useCheckoutStore();
-  
-  const [formData, setFormData] = useState<PaymentInfo>(paymentInfo || {
-    cardholderName: '',
-    paymentMethod: reservationType === 'quote' ? 'quote' : 'card',
-    billingAddress: {
-      sameAsShipping: true,
-    },
-  });
-
-  const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, checked } = e.target;
-
-    if (name.startsWith('billing.')) {
-      const field = name.replace('billing.', '');
-
-      setFormData((prev) => {
-        const prevBilling = prev.billingAddress ?? { sameAsShipping: true };
-
-        const updatedBilling: NonNullable<PaymentInfo['billingAddress']> =
-          field === 'sameAsShipping'
-            ? { ...prevBilling, sameAsShipping: !!checked }
-            : { ...prevBilling, [field]: value } as NonNullable<PaymentInfo['billingAddress']>;
-
-        return { ...prev, billingAddress: updatedBilling } as PaymentInfo;
-      });
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value } as PaymentInfo));
-    }
-
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const handlePaymentMethodChange = (method: 'card' | 'transfer' | 'quote') => {
-    setFormData(prev => ({ ...prev, paymentMethod: method }));
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<string, string>> = {};
-
-    if (formData.paymentMethod === 'card') {
-      if (!formData.cardholderName.trim()) {
-        newErrors.cardholderName = 'El nombre del titular es requerido';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-      setPaymentInfo(formData);
-      nextStep();
-    }
-  };
-
-  const inputClasses = (hasError: boolean) => `
-    w-full px-4 py-3 rounded-xl border-2 bg-secondary-50/50 
-    transition-all duration-200 outline-none
-    ${hasError
-      ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-      : 'border-secondary-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10'
-    }
-  `;
-
-  const paymentMethods = [
-    {
-      id: 'card',
-      label: 'Tarjeta de Crédito',
-      icon: CreditCard,
-      description: 'Visa, Mastercard, AMEX',
-      color: 'primary'
-    },
-    {
-      id: 'transfer',
-      label: 'Transferencia',
-      icon: Building2,
-      description: 'SPEI / Depósito',
-      color: 'emerald'
-    },
-    {
-      id: 'quote',
-      label: 'Solo Cotización',
-      icon: FileText,
-      description: 'Sin compromiso',
-      color: 'violet'
-    },
-  ];
+  const {
+    formData,
+    errors,
+    handleChange,
+    handlePaymentMethodChange,
+    handleSubmit,
+    prevStep,
+    reservationType
+  } = usePaymentInfo();
 
   return (
     <div className="space-y-8">
@@ -190,26 +104,15 @@ const PaymentInfoForm = () => {
               </div>
 
               <div className="space-y-5">
-                <div>
-                  <label htmlFor="cardholderName" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                    Nombre del Titular *
-                  </label>
-                  <input
-                    type="text"
-                    id="cardholderName"
-                    name="cardholderName"
-                    value={formData.cardholderName}
-                    onChange={handleChange}
-                    className={inputClasses(!!errors.cardholderName)}
-                    placeholder="Como aparece en la tarjeta"
-                  />
-                  {errors.cardholderName && (
-                    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                      <span className="w-1 h-1 bg-red-500 rounded-full" />
-                      {errors.cardholderName}
-                    </p>
-                  )}
-                </div>
+                <FormInput
+                  label="Nombre del Titular *"
+                  id="cardholderName"
+                  name="cardholderName"
+                  value={formData.cardholderName}
+                  onChange={handleChange}
+                  error={errors.cardholderName}
+                  placeholder="Como aparece en la tarjeta"
+                />
 
                 {/* Stripe Elements Placeholder */}
                 <div className="p-5 bg-white rounded-xl border-2 border-dashed border-secondary-200">
@@ -218,7 +121,6 @@ const PaymentInfoForm = () => {
                     <span className="text-sm font-medium">Pago seguro con Stripe</span>
                   </div>
 
-                  {/* Mock card input fields for visualization */}
                   <div className="space-y-3">
                     <div className="bg-secondary-50 p-3.5 rounded-xl border border-secondary-200">
                       <span className="text-secondary-400 text-sm">4242 4242 4242 4242</span>
@@ -331,41 +233,29 @@ const PaymentInfoForm = () => {
 
               {!formData.billingAddress?.sameAsShipping && (
                 <div className="mt-5 space-y-4">
-                  <div>
-                    <label htmlFor="billing.address" className="block text-sm font-medium text-secondary-700 mb-1.5">Dirección</label>
-                    <input
-                      type="text"
-                      id="billing.address"
-                      name="billing.address"
-                      value={formData.billingAddress?.address || ''}
-                      onChange={handleChange}
-                      className={inputClasses(false)}
-                      placeholder="Calle y número"
-                    />
-                  </div>
+                  <FormInput
+                    label="Dirección"
+                    id="billing.address"
+                    name="billing.address"
+                    value={formData.billingAddress?.address || ''}
+                    onChange={handleChange}
+                    placeholder="Calle y número"
+                  />
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="billing.city" className="block text-sm font-medium text-secondary-700 mb-1.5">Ciudad</label>
-                      <input
-                        type="text"
-                        id="billing.city"
-                        name="billing.city"
-                        value={formData.billingAddress?.city || ''}
-                        onChange={handleChange}
-                        className={inputClasses(false)}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="billing.postalCode" className="block text-sm font-medium text-secondary-700 mb-1.5">Código Postal</label>
-                      <input
-                        type="text"
-                        id="billing.postalCode"
-                        name="billing.postalCode"
-                        value={formData.billingAddress?.postalCode || ''}
-                        onChange={handleChange}
-                        className={inputClasses(false)}
-                      />
-                    </div>
+                    <FormInput
+                      label="Ciudad"
+                      id="billing.city"
+                      name="billing.city"
+                      value={formData.billingAddress?.city || ''}
+                      onChange={handleChange}
+                    />
+                    <FormInput
+                      label="Código Postal"
+                      id="billing.postalCode"
+                      name="postalCode"
+                      value={formData.billingAddress?.postalCode || ''}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
               )}
