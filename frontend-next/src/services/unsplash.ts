@@ -42,13 +42,18 @@ export const searchPhotos = async (
     );
     
     if (!response.ok) {
-      throw new Error('Failed to fetch photos');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Unsplash API Error: ${response.status} - ${errorData.errors?.[0] || response.statusText}`);
     }
     
     const data: UnsplashSearchResponse = await response.json();
     return data.results;
   } catch (error) {
-    console.error('Unsplash API error:', error);
+    if (error instanceof Error) {
+      console.error(`Error in searchPhotos: ${error.message}`);
+    } else {
+      console.error('Unknown error in searchPhotos:', error);
+    }
     return [];
   }
 };
@@ -66,12 +71,17 @@ export const getRandomPhoto = async (query: string): Promise<UnsplashPhoto | nul
     );
     
     if (!response.ok) {
-      throw new Error('Failed to fetch random photo');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Unsplash API Error: ${response.status} - ${errorData.errors?.[0] || response.statusText}`);
     }
     
     return await response.json();
   } catch (error) {
-    console.error('Unsplash API error:', error);
+    if (error instanceof Error) {
+      console.error(`Error in getRandomPhoto: ${error.message}`);
+    } else {
+      console.error('Unknown error in getRandomPhoto:', error);
+    }
     return null;
   }
 };
@@ -89,12 +99,17 @@ export const getRandomPhotos = async (query: string, count: number = 3): Promise
     );
     
     if (!response.ok) {
-      throw new Error('Failed to fetch random photos');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Unsplash API Error: ${response.status} - ${errorData.errors?.[0] || response.statusText}`);
     }
     
     return await response.json();
   } catch (error) {
-    console.error('Unsplash API error:', error);
+    if (error instanceof Error) {
+      console.error(`Error in getRandomPhotos: ${error.message}`);
+    } else {
+      console.error('Unknown error in getRandomPhotos:', error);
+    }
     return [];
   }
 };

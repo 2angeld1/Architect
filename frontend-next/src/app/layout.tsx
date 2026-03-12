@@ -17,6 +17,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Archiquect - Planos y Proyectos Arquitectónicos",
   description: "Diseños de casas y planos arquitectónicos de alta calidad de más de 15 años de experiencia.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
