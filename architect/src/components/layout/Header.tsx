@@ -8,6 +8,7 @@ import { useCheckoutStore } from '../../store/checkoutStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import MegaMenu from './MegaMenu';
 import { useLayout } from '../../hooks/useLayout';
+import { useCMS } from '../../hooks/useCMS';
 
 interface HeaderProps {}
 
@@ -16,7 +17,44 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const selectedProject = useCheckoutStore((state) => state.selectedProject);
+  const selectedProject = useCheckoutStore((state: any) => state.selectedProject);
+
+  // Dynamic menu links with high-quality fallback defaults
+  const [primaryLinks, setPrimaryLinks] = useState([
+    { name: 'Inicio', path: '/' },
+    { name: 'Proyectos', path: '/proyectos' },
+    { name: 'Nosotros', path: '/nosotros' },
+  ]);
+
+  const [secondaryLinks, setSecondaryLinks] = useState([
+    { name: 'Diseños de garajes', path: '/proyectos' },
+    { name: 'Promociones', path: '/promociones', isHighlight: true },
+    { name: 'Construyendo una casa', path: '/construyendo-una-casa' },
+    { name: 'Casas y Apartamentos', path: '/casas-ya-hechas' },
+    { name: 'Diseño de Interiores', path: '/diseno-de-interiores' },
+  ]);
+
+  // Read menu links in real-time from CMS global configuration
+  const { content } = useCMS('global');
+
+  useEffect(() => {
+    if (content) {
+      if (content.menu_primary) {
+        try {
+          setPrimaryLinks(JSON.parse(content.menu_primary));
+        } catch (e) {
+          console.error('Error parsing primary links:', e);
+        }
+      }
+      if (content.menu_secondary) {
+        try {
+          setSecondaryLinks(JSON.parse(content.menu_secondary));
+        } catch (e) {
+          console.error('Error parsing secondary links:', e);
+        }
+      }
+    }
+  }, [content]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,17 +80,12 @@ const Header = () => {
     ? 'hover:text-white'
     : 'hover:text-primary-600';
 
-  const navLinks = [
-    { name: 'Inicio', path: '/' },
-    { name: 'Proyectos', path: '/proyectos' },
-    { name: 'Categorías', path: '/categorias' },
-    { name: 'Nosotros', path: '/nosotros' },
-  ];
-
   const isActive = (path: string) => {
     if (path === '/' && pathname !== '/') return false;
     return pathname.startsWith(path);
   };
+
+  if (pathname.startsWith('/admin')) return null;
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBg}`}>
@@ -71,7 +104,7 @@ const Header = () => {
 
           {/* Primary Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {primaryLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.path}
@@ -135,39 +168,21 @@ const Header = () => {
         <div className={`hidden lg:flex items-center justify-center gap-8 h-12 border-t ${isTransparent ? 'border-white/10' : 'border-secondary-100'}`}>
           <MegaMenu transparent={isTransparent} />
 
-          <Link
-            href="/proyectos"
-            className={`text-sm font-medium transition-colors relative group whitespace-nowrap ${textColor} ${linkHoverColor} flex items-center gap-1`}
-          >
-            Diseños de garajes
-          </Link>
-
-          <Link
-            href="/promociones"
-            className={`text-sm font-bold transition-colors relative group whitespace-nowrap ${isTransparent ? 'text-white hover:text-white/90' : 'text-rose-500 hover:text-rose-600'}`}
-          >
-            Promociones
-          </Link>
-
-          <Link
-            href="/construyendo-una-casa"
-            className={`text-sm font-medium transition-colors relative group whitespace-nowrap ${isActive('/construyendo-una-casa')
-              ? (isTransparent ? 'text-white font-bold' : 'text-primary-600 font-bold')
-              : `${textColor} ${linkHoverColor}`
+          {secondaryLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.path}
+              className={`text-sm transition-colors relative group whitespace-nowrap ${
+                (link as any).isHighlight 
+                  ? (isTransparent ? 'text-white hover:text-white/90' : 'text-rose-500 hover:text-rose-600 font-bold') 
+                  : (isActive(link.path)
+                    ? (isTransparent ? 'text-white font-bold' : 'text-primary-600 font-bold')
+                    : `${textColor} ${linkHoverColor}`)
               }`}
-          >
-            Construyendo una casa
-          </Link>
-
-          <Link
-            href="/casas-ya-hechas"
-            className={`text-sm font-medium transition-colors relative group whitespace-nowrap ${isActive('/casas-ya-hechas')
-              ? (isTransparent ? 'text-white font-bold' : 'text-primary-600 font-bold')
-              : `${textColor} ${linkHoverColor}`
-              }`}
-          >
-            Casas ya hechas
-          </Link>
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
 
         {/* Mobile Navigation */}
@@ -181,7 +196,7 @@ const Header = () => {
               className="lg:hidden overflow-hidden border-t border-white/10 bg-white/95 backdrop-blur-md rounded-b-2xl shadow-xl"
             >
               <div className="flex flex-col space-y-2 p-4">
-                {navLinks.map((link) => (
+                {primaryLinks.map((link) => (
                   <Link
                     key={link.name}
                     href={link.path}

@@ -3,7 +3,7 @@ export interface Project {
   id: string;
   name: string;
   description: string;
-  category: ProjectCategory;
+  category: string;
   price: number;
   originalPrice?: number;
   currency: string;
@@ -18,12 +18,7 @@ export interface Project {
   updatedAt: string;
 }
 
-export type ProjectCategory = 
-  | 'residencial' 
-  | 'comercial' 
-  | 'industrial' 
-  | 'institucional'
-  | 'mixto';
+
 
 export interface Category {
   id: string | number;

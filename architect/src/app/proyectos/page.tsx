@@ -4,20 +4,10 @@ import { useState } from 'react';
 import { Search, SlidersHorizontal, Building2, Grid3X3, List, X, ChevronDown } from 'lucide-react';
 import { mockProjects } from '../../mocks/projects';
 import { useProjects } from '../../hooks/useProjects';
-import type { ProjectCategory } from '../../types';
+import type { Project } from '../../types';
 import Reveal from '../../components/ui/Reveal';
 import { slideUp, fadeIn } from '../../animations/variants';
 import ProjectCard from '../../components/ui/ProjectCard';
-import { allCategories } from '../../mocks/categories';
-
-const filterCategories: { value: ProjectCategory | 'all'; label: string; icon: React.ElementType }[] = [
-  { value: 'all', label: 'Todos', icon: Grid3X3 },
-  ...allCategories.map(c => ({
-    value: c.name.toLowerCase() as ProjectCategory,
-    label: c.name,
-    icon: c.icon as React.ElementType
-  }))
-];
 
 const ProjectsPage = () => {
   const {
@@ -34,6 +24,8 @@ const ProjectsPage = () => {
     favorites,
     projectImages,
     filteredProjects,
+    uniqueCategories,
+    isLoading,
     toggleFavorite,
   } = useProjects();
 
@@ -99,17 +91,28 @@ const ProjectsPage = () => {
               <div className="mb-6">
                 <h4 className="font-medium text-secondary-700 mb-3 text-sm uppercase tracking-wide">Categoría</h4>
                 <div className="space-y-2">
-                  {filterCategories.map((cat) => (
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${selectedCategory === 'all'
+                      ? 'bg-primary-50 text-primary-700 border border-primary-200'
+                      : 'hover:bg-secondary-50 text-secondary-600'
+                      }`}
+                  >
+                    <Grid3X3 className="w-5 h-5" />
+                    <span className="font-medium">Todos</span>
+                  </button>
+
+                  {uniqueCategories.map((cat: string) => (
                     <button
-                      key={cat.value}
-                      onClick={() => setSelectedCategory(cat.value)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${selectedCategory === cat.value
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${selectedCategory === cat
                         ? 'bg-primary-50 text-primary-700 border border-primary-200'
                         : 'hover:bg-secondary-50 text-secondary-600'
                         }`}
                     >
-                      <cat.icon className="w-5 h-5" />
-                      <span className="font-medium">{cat.label}</span>
+                      <Building2 className="w-5 h-5" />
+                      <span className="font-medium capitalize">{cat}</span>
                     </button>
                   ))}
                 </div>

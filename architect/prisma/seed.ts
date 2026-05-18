@@ -1,4 +1,4 @@
-import { PrismaClient, ProjectCategory } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -16,12 +16,12 @@ async function main() {
     {
       name: 'Casa Moderna Minimalista',
       description: 'Diseño contemporáneo con líneas limpias y espacios abiertos. Perfecta para familias que buscan un estilo de vida moderno con amplias áreas sociales y conexión con la naturaleza.',
-      category: ProjectCategory.residencial,
+      category: 'residencial',
       price: 2500,
       currency: 'USD',
       images: ['/placeholder-house-1.jpg'],
       features: [
-        'Diseño de concepto abierto',
+        'Diseño de concepto open space',
         'Grandes ventanales con vista panorámica',
         'Terraza con pérgola',
         'Cocina integrada con isla',
@@ -37,7 +37,7 @@ async function main() {
     {
       name: 'Apartamento Urbano Loft',
       description: 'Espacio tipo loft ideal para profesionales urbanos. Diseño industrial con acabados contemporáneos y máximo aprovechamiento del espacio vertical.',
-      category: ProjectCategory.residencial,
+      category: 'residencial',
       price: 1800,
       currency: 'USD',
       images: ['/placeholder-loft-1.jpg'],
@@ -58,7 +58,7 @@ async function main() {
     {
       name: 'Villa Campestre',
       description: 'Residencia de campo con arquitectura tradicional renovada. Ideal para quienes buscan escapar de la ciudad sin perder las comodidades modernas.',
-      category: ProjectCategory.residencial,
+      category: 'residencial',
       price: 4500,
       currency: 'USD',
       images: ['/placeholder-villa-1.jpg'],
@@ -79,7 +79,7 @@ async function main() {
     {
       name: 'Oficina Corporativa',
       description: 'Diseño de espacio de trabajo moderno enfocado en productividad y bienestar del equipo. Incluye áreas colaborativas y espacios privados.',
-      category: ProjectCategory.comercial,
+      category: 'comercial',
       price: 3200,
       currency: 'USD',
       images: ['/placeholder-office-1.jpg'],
@@ -100,7 +100,7 @@ async function main() {
     {
       name: 'Café Boutique',
       description: 'Local comercial diseñado para cafetería o restaurante pequeño. Ambiente acogedor con diseño funcional para operación eficiente.',
-      category: ProjectCategory.comercial,
+      category: 'comercial',
       price: 1500,
       currency: 'USD',
       images: ['/placeholder-cafe-1.jpg'],
@@ -121,7 +121,7 @@ async function main() {
     {
       name: 'Casa Eco-Sustentable',
       description: 'Vivienda diseñada con principios de arquitectura sustentable. Incorpora sistemas de energía renovable y materiales ecológicos.',
-      category: ProjectCategory.residencial,
+      category: 'residencial',
       price: 3800,
       currency: 'USD',
       images: ['/placeholder-eco-1.jpg'],

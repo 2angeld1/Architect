@@ -104,7 +104,7 @@ const CategoryDetailPage = () => {
                                     Sub-estilos
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {category.subcategories.map((sub, idx) => (
+                                    {category.subcategories.map((sub: string, idx: number) => (
                                         <span key={idx} className="px-4 py-2 bg-white border border-secondary-200 rounded-xl text-secondary-600 text-sm font-medium hover:border-primary-500 hover:text-primary-600 cursor-default transition-all">
                                             {sub}
                                         </span>

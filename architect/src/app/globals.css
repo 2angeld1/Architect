@@ -44,16 +44,38 @@
     font-family: var(--font-outfit), sans-serif;
   }
     
-  /* Custom Scrollbar */
+  /* Custom Scrollbar - Minimal & Non-Invasive */
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 4px; /* Extremely thin by default */
+    height: 4px;
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-secondary-100;
+    background: #09090b; /* Zinc-950, matches the site's dark background */
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-secondary-300 rounded-full hover:bg-secondary-400 transition-colors;
+    background: rgba(255, 255, 255, 0.12); /* Subtle light indicator */
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  /* Expand the scrollbar width on hover for easy grabbing */
+  ::-webkit-scrollbar:hover {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35); /* Brighter on hover */
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Support standard scrollbar properties for Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) #09090b;
   }
 }

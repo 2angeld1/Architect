@@ -9,6 +9,27 @@ export interface HeroSlide {
   credit?: string;
 }
 
+const fallbackSlides: HeroSlide[] = [
+  {
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80&fit=crop',
+    title: 'Diseña tu Hogar Ideal',
+    subtitle: 'Más de 500 proyectos arquitectónicos listos para construir',
+    credit: 'R-Architecture'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80&fit=crop',
+    title: 'Arquitectura Moderna',
+    subtitle: 'Planos detallados con las últimas tendencias de diseño',
+    credit: 'R-Architecture'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=80&fit=crop',
+    title: 'Tu Proyecto, Tu Estilo',
+    subtitle: 'Casas modernas, clásicas y contemporáneas',
+    credit: 'R-Architecture'
+  }
+];
+
 export const useHeroCarousel = (autoInterval = 6000) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -19,7 +40,7 @@ export const useHeroCarousel = (autoInterval = 6000) => {
     const fetchImages = async () => {
       try {
         const photos = await searchPhotos('modern house architecture', 3);
-        if (photos.length > 0) {
+        if (photos && photos.length > 0) {
           const newSlides = photos.map((photo: UnsplashPhoto, index: number) => ({
             image: `${photo.urls.raw}&w=1920&q=80&fit=crop`,
             title: heroSlideContent[index % heroSlideContent.length].title,
@@ -27,9 +48,13 @@ export const useHeroCarousel = (autoInterval = 6000) => {
             credit: photo.user.name,
           }));
           setSlides(newSlides);
+        } else {
+          // Usar slides de respaldo si Unsplash no devuelve fotos (ej. falta API key)
+          setSlides(fallbackSlides);
         }
       } catch (error) {
-        console.error('Error loading images', error);
+        console.error('Error loading images from Unsplash, loading fallbacks:', error);
+        setSlides(fallbackSlides);
       } finally {
         setIsLoading(false);
       }

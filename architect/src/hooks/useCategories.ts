@@ -1,57 +1,63 @@
 import { useState, useEffect } from 'react';
-import { Home, Building2, TreePine, Layers, Minimize2, Car } from 'lucide-react';
 import { searchPhotos } from '../services/unsplash';
-
 import { Category } from '../types';
+import { getCategoryIcon } from '../lib/iconHelper';
 
+// Fallback hardcoded categories in case DB is not populated yet
 const defaultCategories = [
   {
     id: 1,
     name: 'Casas Modernas',
+    description: 'Diseños contemporáneos con líneas limpias y espacios abiertos',
     count: 125,
-    color: 'from-sky-500/90 to-indigo-600/90',
+    iconName: 'Home',
     query: 'modern house architecture exterior',
-    icon: Home,
+    subcategories: ['Minimalista', 'Industrial', 'Contemporáneo', 'High-Tech'],
   },
   {
     id: 2,
     name: 'Minimalistas',
+    description: 'Espacios funcionales donde menos es más',
     count: 89,
-    color: 'from-emerald-500/90 to-teal-600/90',
+    iconName: 'Minimize2',
     query: 'minimalist house design white',
-    icon: Minimize2,
+    subcategories: ['Japonés', 'Escandinavo', 'Zen', 'Blanco total'],
   },
   {
     id: 3,
     name: 'Con Jardín',
+    description: 'Diseños que integran la naturaleza en tu hogar',
     count: 156,
-    color: 'from-amber-500/90 to-orange-600/90',
+    iconName: 'TreePine',
     query: 'house garden backyard',
-    icon: TreePine,
+    subcategories: ['Patio central', 'Jardín posterior', 'Terraza verde', 'Huerto'],
   },
   {
     id: 4,
     name: 'Dos Pisos',
+    description: 'Maximiza el espacio vertical con elegancia',
     count: 203,
-    color: 'from-rose-500/90 to-pink-600/90',
+    iconName: 'Layers',
     query: 'two story modern house',
-    icon: Layers,
+    subcategories: ['Colonial', 'Mediterráneo', 'Tudor', 'Moderno'],
   },
   {
     id: 5,
     name: 'Departamentos',
+    description: 'Soluciones inteligentes para espacios urbanos',
     count: 67,
-    color: 'from-violet-500/90 to-purple-600/90',
+    iconName: 'Building2',
     query: 'modern apartment building',
-    icon: Building2,
+    subcategories: ['Loft', 'Penthouse', 'Dúplex', 'Estudio'],
   },
   {
     id: 6,
     name: 'Con Garaje',
+    description: 'Diseños que incluyen espacio para tus vehículos',
     count: 145,
-    color: 'from-cyan-500/90 to-blue-600/90',
+    iconName: 'Car',
     query: 'house with garage modern',
-    icon: Car,
+    subcategories: ['1 Auto', '2 Autos', '3+ Autos', 'Taller'],
   },
 ];
 
@@ -60,28 +66,61 @@ export const useCategories = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCategoryImages = async () => {
+    const fetchCategoriesData = async () => {
       try {
+        const res = await fetch('/api/cms?page=global');
+        const json = await res.json();
+        
+        let rawCategories = defaultCategories;
+        if (json.success && json.formatted && json.formatted.categories_list) {
+          try {
+            rawCategories = JSON.parse(json.formatted.categories_list);
+          } catch (e) {
+            console.error('Failed to parse categories_list JSON:', e);
+          }
+        }
+
         const updatedCategories = await Promise.all(
-          defaultCategories.map(async (category) => {
-            const photos = await searchPhotos(category.query, 1);
+          rawCategories.map(async (category: any) => {
+            const photos = await searchPhotos(category.query || category.name, 1);
             return {
               ...category,
+              icon: getCategoryIcon(category.iconName || 'Home'),
               image: photos.length > 0 
                 ? `${photos[0].urls.raw}&w=800&q=85&fit=crop` 
                 : '',
             };
           })
         );
-        setCategories(updatedCategories.filter(c => c.image !== '') as Category[]);
+        
+        setCategories(updatedCategories as Category[]);
       } catch (error) {
-        console.error('Error fetching categories', error);
+        console.error('Error fetching categories:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    
-    fetchCategoryImages();
+
+    fetchCategoriesData();
+
+    // Listen to real-time events from SSE API
+    const eventSource = new EventSource('/api/cms/events?page=global');
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'update') {
+          console.log('[Realtime Categories] Updating categories list in real-time...');
+          fetchCategoriesData();
+        }
+      } catch (err) {
+        console.error('Failed to parse SSE data for categories', err);
+      }
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   return {

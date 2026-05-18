@@ -5,12 +5,13 @@ import { useProjects } from '../../hooks/useProjects';
 import Reveal from '../../components/ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 import ProjectCard from '../../components/ui/ProjectCard';
+import { useCMS } from '../../hooks/useCMS';
 
 const ReadyMadeHousesPage = () => {
   const { filteredProjects, favorites, toggleFavorite, projectImages } = useProjects();
+  const { content, isLoading } = useCMS('propiedades');
 
   // For demo purposes, we'll just take the second half of projects
-  // In a real app, this would filter by status='built' or similar
   const readyMadeProjects = filteredProjects.slice(filteredProjects.length / 2);
 
   return (
@@ -21,14 +22,13 @@ const ReadyMadeHousesPage = () => {
             <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-primary-300 text-xs font-bold uppercase tracking-wider mb-4 border border-white/20">
                 <Home className="w-4 h-4" />
-                Entrega Inmediata
+                {content['hero_badge'] || 'Entrega Inmediata'}
               </span>
               <h1 className="font-heading text-4xl lg:text-5xl font-bold mb-4">
-                Casas Ya Hechas
+                {content['hero_title'] || 'Casas y Apartamentos Ya Construidos'}
               </h1>
               <p className="text-secondary-300 text-lg">
-                Propiedades terminadas listas para habitar. Sin esperas de construcción, 
-                ideales para quienes buscan mudarse de inmediato.
+                {content['hero_subtitle'] || 'Propiedades residenciales, apartamentos y locales terminados listos para habitar o invertir. Sin esperas de construcción.'}
               </p>
             </div>
           </Reveal>

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: Request, { params }: { params: { reservationNumber: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ reservationNumber: string }> }) {
   try {
-    const { reservationNumber } = params;
+    const { reservationNumber } = await params;
 
     const reservation = await prisma.reservation.findUnique({
       where: { reservationNumber },

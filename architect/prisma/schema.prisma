@@ -10,16 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Categorías de proyectos
-enum ProjectCategory {
-  residencial
-  comercial
-  industrial
-  institucional
-  mixto
-}
 
-// Estado de la reserva
 enum ReservationStatus {
   pending      // Pendiente de pago
   processing   // Procesando pago
@@ -53,7 +44,7 @@ model Project {
   id          String          @id @default(uuid())
   name        String
   description String          @db.Text
-  category    ProjectCategory
+  category    String
   price       Decimal         @db.Decimal(10, 2)
   currency    String          @default("USD")
   images      String[]
@@ -156,3 +147,35 @@ model Reservation {
   @@index([type])
   @@index([createdAt])
 }
+
+// Modelo para el CMS (Textos e imágenes editables de las páginas)
+model PageContent {
+  id          String   @id @default(uuid())
+  page        String   // Ej. "home", "about", "contact"
+  section     String   // Ej. "hero", "features", "footer"
+  key         String   // Ej. "title", "subtitle", "backgroundImage"
+  value       String   @db.Text
+  type        String   @default("text") // "text", "image", "richtext"
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([page, section, key])
+  @@index([page])
+}
+
+// Modelo de Administrador/Usuario de la Plataforma
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String    // Contraseña cifrada
+  name          String?
+  resetToken    String?   // Token para restablecer contraseña
+  resetTokenExp DateTime? // Expiración del token
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([email])
+}
+

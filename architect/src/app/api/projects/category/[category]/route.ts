@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: Request, { params }: { params: { category: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ category: string }> }) {
   try {
-    const { category } = params;
+    const { category } = await params;
 
     const projects = await prisma.project.findMany({
       where: { 
