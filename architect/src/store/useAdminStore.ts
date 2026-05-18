@@ -27,6 +27,7 @@ type AdminStore = {
   error: string | null;
   fetchProjects: () => Promise<void>;
   createProject: (data: Partial<Project>) => Promise<boolean>;
+  updateProject: (id: string, data: Partial<Project>) => Promise<boolean>;
   deleteProject: (id: string) => Promise<boolean>;
   fetchReservations: () => Promise<void>;
   updateReservationStatus: (id: string, status: Reservation['status']) => Promise<boolean>;
@@ -59,6 +60,23 @@ export const useAdminStore = create<AdminStore>()((set: any, get: any) => ({
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error('Error creating project');
+      await get().fetchProjects();
+      return true;
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+      return false;
+    }
+  },
+
+  updateProject: async (id: string, data: Partial<Project>) => {
+    set({ isLoading: true });
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error updating project');
       await get().fetchProjects();
       return true;
     } catch (err: any) {

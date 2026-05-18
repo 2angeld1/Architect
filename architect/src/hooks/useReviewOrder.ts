@@ -43,17 +43,31 @@ export const useReviewOrder = () => {
     setIsSubmitting(true);
     
     try {
-      // Simular llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: selectedProject?.id,
+          buyerInfo,
+          paymentInfo,
+          reservationType
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ocurrió un error al procesar tu reserva.');
+      }
       
-      // Generar ID de reserva mock
-      const reservationId = `RES-${Date.now()}`;
+      const reservationId = data.reservationId;
       
       // Limpiar el checkout y navegar a confirmación
       resetCheckout();
       router.push(`/confirmacion/${reservationId}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al procesar la reserva:', error);
+      alert(error.message || 'Error de red al procesar tu reserva. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }

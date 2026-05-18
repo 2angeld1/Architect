@@ -11,12 +11,12 @@ export const useBuyerInfo = () => {
     email: '',
     phone: '',
     documentType: 'dni',
-    documentNumber: '',
-    address: '',
-    city: '',
-    state: '',
+    documentNumber: '00000000',
+    address: 'Entrega Digital',
+    city: 'Digital',
+    state: 'Digital',
     country: 'México',
-    postalCode: '',
+    postalCode: '00000',
     notes: '',
   });
 
@@ -26,7 +26,7 @@ export const useBuyerInfo = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when field is modified
+    // Limpiar error cuando se modifica el campo
     if (errors[name as keyof BuyerInfo]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
@@ -49,21 +49,9 @@ export const useBuyerInfo = () => {
     if (!formData.phone.trim()) {
       newErrors.phone = 'El teléfono es requerido';
     }
-    if (!formData.documentNumber.trim()) {
-      newErrors.documentNumber = 'El número de documento es requerido';
-    }
-    if (!formData.address.trim()) {
-      newErrors.address = 'La dirección es requerida';
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = 'La ciudad es requerida';
-    }
-    if (!formData.state.trim()) {
-      newErrors.state = 'El estado/provincia es requerido';
-    }
-    if (!formData.postalCode.trim()) {
-      newErrors.postalCode = 'El código postal es requerido';
-    }
+
+    // Nota: Eliminamos tanto la dirección física como la identificación oficial (DNI/INE/RUC)
+    // para tener un checkout lo más rápido y libre de fricción posible.
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

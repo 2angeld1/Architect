@@ -12,7 +12,8 @@ import {
   Hexagon,
   Globe,
   FolderOpen,
-  Compass
+  Compass,
+  Images
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -21,6 +22,7 @@ const menuItems = [
   { icon: FolderKanban, label: 'Proyectos', href: '/admin/projects' },
   { icon: FolderOpen, label: 'Categorías', href: '/admin/categories' },
   { icon: Compass, label: 'Navegación', href: '/admin/menus' },
+  { icon: Images, label: 'Galería', href: '/admin/media' },
   { icon: CalendarDays, label: 'Reservas', href: '/admin/reservations' },
   { icon: Users, label: 'Clientes', href: '/admin/clients' },
   { icon: LayoutDashboard, label: 'Contenido (CMS)', href: '/admin/content' },

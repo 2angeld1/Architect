@@ -25,18 +25,43 @@ type Project = {
 const columnHelper = createColumnHelper<Project>();
 
 export default function ProjectsTable() {
-  const { projects, isLoading, fetchProjects, createProject } = useAdminStore();
+  const { projects, isLoading, fetchProjects, createProject, updateProject, deleteProject } = useAdminStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState<any | null>(null);
 
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
 
-  const handleCreateProject = async (data: any) => {
-    const success = await createProject(data);
-    if (success) {
-      setIsModalOpen(false);
+  const handleEditClick = (project: any) => {
+    setProjectToEdit(project);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = async (project: any) => {
+    if (window.confirm(`¿Estás seguro de que deseas eliminar el proyecto "${project.name}"?`)) {
+      await deleteProject(project.id);
     }
+  };
+
+  const handleFormSubmit = async (data: any) => {
+    if (projectToEdit) {
+      const success = await updateProject(projectToEdit.id, data);
+      if (success) {
+        setIsModalOpen(false);
+        setProjectToEdit(null);
+      }
+    } else {
+      const success = await createProject(data);
+      if (success) {
+        setIsModalOpen(false);
+      }
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setProjectToEdit(null);
   };
 
   const columns = [
@@ -73,16 +98,27 @@ export default function ProjectsTable() {
     }),
     columnHelper.display({
       id: 'actions',
-      cell: () => (
-        <div className="flex items-center justify-end gap-2">
-          <button className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
-            <Edit className="w-4 h-4" />
-          </button>
-          <button className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      ),
+      cell: (info) => {
+        const project = info.row.original;
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <button 
+              onClick={() => handleEditClick(project)}
+              className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              title="Editar"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => handleDeleteClick(project)}
+              className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Eliminar"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        );
+      },
     }),
   ];
 
@@ -99,15 +135,18 @@ export default function ProjectsTable() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-light text-white tracking-wide">Proyectos</h2>
-          <p className="text-zinc-500 text-sm mt-1">Gestiona el catálogo de proyectos arquitectónicos.</p>
+          <h2 className="text-2xl font-light text-white tracking-wide font-sans">Proyectos</h2>
+          <p className="text-zinc-500 text-sm mt-1 font-sans">Gestiona el catálogo de proyectos arquitectónicos.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-900 px-5 py-2.5 rounded-xl font-medium transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+          onClick={() => {
+            setProjectToEdit(null);
+            setIsModalOpen(true);
+          }}
+          className="flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-900 px-5 py-2.5 rounded-xl font-medium transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm font-sans"
         >
           <Plus className="w-4 h-4" />
           Nuevo Proyecto
@@ -120,7 +159,7 @@ export default function ProjectsTable() {
         className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xl"
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse font-sans">
             <thead>
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id} className="border-b border-zinc-800/80 bg-zinc-900/30">
@@ -173,7 +212,7 @@ export default function ProjectsTable() {
         
         {/* Pagination */}
         {projects.length > 0 && (
-          <div className="p-5 border-t border-zinc-800/80 flex items-center justify-between text-sm text-zinc-400">
+          <div className="p-5 border-t border-zinc-800/80 flex items-center justify-between text-sm text-zinc-400 font-sans">
             <div>
               Página <span className="text-white">{table.getState().pagination.pageIndex + 1}</span> de{' '}
               <span className="text-white">{table.getPageCount()}</span>
@@ -201,9 +240,10 @@ export default function ProjectsTable() {
       {/* Floating Modal Form */}
       <ProjectFormModal 
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleCreateProject}
+        onClose={handleModalClose}
+        onSubmit={handleFormSubmit}
         isLoading={isLoading}
+        projectToEdit={projectToEdit}
       />
     </div>
   );

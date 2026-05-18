@@ -24,9 +24,10 @@ interface Props {
   onClose: () => void;
   onSubmit: (data: ProjectFormData) => void;
   isLoading?: boolean;
+  projectToEdit?: any;
 }
 
-export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading }: Props) {
+export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading, projectToEdit }: Props) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [dynamicCategories, setDynamicCategories] = useState<string[]>([
     'Residencial',
@@ -38,6 +39,50 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
     'Mixto'
   ]);
 
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProjectFormData>({
+    defaultValues: {
+      category: 'residencial',
+      floors: 1,
+      images: []
+    }
+  });
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (projectToEdit) {
+      reset({
+        name: projectToEdit.name || '',
+        category: projectToEdit.category || '',
+        price: projectToEdit.price ? Number(projectToEdit.price) : 0,
+        area: projectToEdit.area || 0,
+        rooms: projectToEdit.rooms || 0,
+        bathrooms: projectToEdit.bathrooms || 0,
+        floors: projectToEdit.floors || 1,
+        style: projectToEdit.style || '',
+        description: projectToEdit.description || '',
+      });
+      if (Array.isArray(projectToEdit.images) && projectToEdit.images.length > 0) {
+        setImageUrl(projectToEdit.images[0]);
+      } else {
+        setImageUrl(null);
+      }
+    } else {
+      reset({
+        name: '',
+        category: 'residencial',
+        price: 0,
+        area: 0,
+        rooms: 0,
+        bathrooms: 0,
+        floors: 1,
+        style: '',
+        description: '',
+      });
+      setImageUrl(null);
+    }
+  }, [projectToEdit, reset, isOpen]);
+
+  // Load dynamic categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -60,14 +105,6 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
       fetchCategories();
     }
   }, [isOpen]);
-
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProjectFormData>({
-    defaultValues: {
-      category: 'residencial',
-      floors: 1,
-      images: []
-    }
-  });
 
   const handleFormSubmit = (data: ProjectFormData) => {
     const finalData = {
@@ -105,8 +142,14 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
             <div className="p-8">
               <div className="flex justify-between items-center mb-8">
                 <div>
-                  <h2 className="text-2xl font-light text-white">Nuevo Proyecto</h2>
-                  <p className="text-sm text-zinc-500 mt-1">Ingresa los detalles y planos del diseño arquitectónico.</p>
+                  <h2 className="text-2xl font-light text-white font-sans">
+                    {projectToEdit ? 'Editar Proyecto' : 'Nuevo Proyecto'}
+                  </h2>
+                  <p className="text-sm text-zinc-500 mt-1 font-sans">
+                    {projectToEdit 
+                      ? 'Modifica los detalles y planos del diseño arquitectónico.' 
+                      : 'Ingresa los detalles y planos del diseño arquitectónico.'}
+                  </p>
                 </div>
                 <button 
                   onClick={onClose}
@@ -120,7 +163,7 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
                 
                 {/* Image Upload */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-zinc-200 border-b border-zinc-800 pb-2">Planos / Foto Principal</h3>
+                  <h3 className="text-lg font-medium text-zinc-200 border-b border-zinc-800 pb-2 font-sans">Planos / Foto Principal</h3>
                   <CloudinaryUploader 
                     currentImage={imageUrl}
                     onUpload={(url: string) => setImageUrl(url)}
@@ -131,25 +174,25 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
 
                 {/* Basic Info */}
                 <div className="space-y-4 pt-4">
-                  <h3 className="text-lg font-medium text-zinc-200 border-b border-zinc-800 pb-2">Información Básica</h3>
+                  <h3 className="text-lg font-medium text-zinc-200 border-b border-zinc-800 pb-2 font-sans">Información Básica</h3>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Nombre del Proyecto</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Nombre del Proyecto</label>
                       <input 
                         {...register('name', { required: 'El nombre es obligatorio' })}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 focus:ring-1 focus:ring-zinc-650 focus:border-zinc-650 outline-none text-sm font-sans"
                         placeholder="Ej. Casa Vistamar"
                       />
-                      {errors.name && <span className="text-red-400 text-xs mt-1">{errors.name.message}</span>}
+                      {errors.name && <span className="text-red-400 text-xs mt-1 block font-sans">{errors.name.message}</span>}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Categoría</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Categoría</label>
                       <input 
                         list="category-options"
                         {...register('category', { required: 'La categoría es obligatoria' })}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 focus:ring-1 focus:ring-zinc-600 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 focus:ring-1 focus:ring-zinc-650 outline-none text-sm font-sans"
                         placeholder="Ej. Residencial, Museo, Rascacielos..."
                       />
                       <datalist id="category-options">
@@ -157,15 +200,15 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
                           <option key={idx} value={cat} />
                         ))}
                       </datalist>
-                      {errors.category && <span className="text-red-400 text-xs mt-1">{errors.category.message}</span>}
+                      {errors.category && <span className="text-red-400 text-xs mt-1 block font-sans">{errors.category.message}</span>}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Precio Estimado (USD)</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Precio Estimado (USD)</label>
                       <input 
                         type="number"
                         {...register('price', { required: 'Precio es obligatorio', valueAsNumber: true })}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 focus:ring-1 focus:ring-zinc-600 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 focus:ring-1 focus:ring-zinc-650 outline-none text-sm font-sans"
                         placeholder="Ej. 150000"
                       />
                     </div>
@@ -174,47 +217,47 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
 
                 {/* Technical Details */}
                 <div className="space-y-4 pt-4">
-                  <h3 className="text-lg font-medium text-zinc-200 border-b border-zinc-800 pb-2">Características (Planos)</h3>
+                  <h3 className="text-lg font-medium text-zinc-200 border-b border-zinc-800 pb-2 font-sans">Características (Planos)</h3>
                   
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Pisos</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Pisos</label>
                       <input 
                         type="number"
                         {...register('floors', { valueAsNumber: true })}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none text-sm font-sans"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Área (m²)</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Área (m²)</label>
                       <input 
                         type="number"
                         {...register('area', { valueAsNumber: true })}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none text-sm font-sans"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Estilo</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Estilo</label>
                       <input 
                         {...register('style')}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none text-sm font-sans"
                         placeholder="Ej. Minimalista..."
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Habitaciones</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Habitaciones</label>
                       <input 
                         type="number"
                         {...register('rooms', { valueAsNumber: true })}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none text-sm font-sans"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Baños</label>
+                      <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Baños</label>
                       <input 
                         type="number"
                         {...register('bathrooms', { valueAsNumber: true })}
-                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none text-sm font-sans"
                       />
                     </div>
                   </div>
@@ -223,11 +266,11 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
                 {/* Description */}
                 <div className="space-y-4 pt-4">
                   <div>
-                    <label className="block text-sm font-medium text-zinc-400 mb-1">Descripción del Proyecto</label>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1 font-sans">Descripción del Proyecto</label>
                     <textarea 
                       {...register('description')}
                       rows={4}
-                      className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none resize-none"
+                      className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl p-3 outline-none resize-none text-sm font-sans"
                       placeholder="Describe la visión arquitectónica..."
                     />
                   </div>
@@ -238,17 +281,19 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading 
                   <button 
                     type="button"
                     onClick={onClose}
-                    className="px-5 py-2.5 rounded-xl font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                    className="px-5 py-2.5 rounded-xl font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors text-sm font-sans"
                   >
                     Cancelar
                   </button>
                   <button 
                     type="submit"
                     disabled={isLoading}
-                    className="flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-900 px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-900 px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50 text-sm font-sans"
                   >
                     <Save className="w-4 h-4" />
-                    {isLoading ? 'Guardando...' : 'Crear Proyecto'}
+                    <span>
+                      {isLoading ? 'Guardando...' : projectToEdit ? 'Guardar Cambios' : 'Crear Proyecto'}
+                    </span>
                   </button>
                 </div>
 

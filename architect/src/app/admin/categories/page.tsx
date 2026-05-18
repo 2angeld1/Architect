@@ -12,8 +12,9 @@ import {
   Send,
   HelpCircle,
   Layers,
-  ArrowRight
+  X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getCategoryIcon, AVAILABLE_ICONS } from '@/lib/iconHelper';
 
 export default function CategoriesPage() {
@@ -25,8 +26,11 @@ export default function CategoriesPage() {
   // Categorías Dinámicas
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
 
-  // Inputs para agregar/editar categoría
+  // Estado del Modal Deslizante
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<number | string | null>(null);
+  
+  // Estados para el Formulario
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
   const [categoryIcon, setCategoryIcon] = useState('Home');
@@ -55,31 +59,12 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleAddCategory = () => {
-    if (!categoryName.trim()) return;
-    
-    // Check if duplicate name
-    if (categoriesList.some(c => c.name.toLowerCase() === categoryName.trim().toLowerCase() && c.id !== editingCategoryId)) {
-      setError('Ya existe una categoría con este nombre');
-      return;
-    }
-
-    const newCat = {
-      id: Date.now(),
-      name: categoryName.trim(),
-      description: categoryDescription.trim(),
-      count: 0,
-      iconName: categoryIcon,
-      query: categoryQuery.trim() || categoryName.trim(),
-      subcategories: categorySubcategories,
-    };
-
-    setCategoriesList([...categoriesList, newCat]);
+  const handleOpenNewModal = () => {
     resetCategoryForm();
-    setError('');
+    setIsModalOpen(true);
   };
 
-  const handleStartEdit = (cat: any) => {
+  const handleOpenEditModal = (cat: any) => {
     setEditingCategoryId(cat.id);
     setCategoryName(cat.name);
     setCategoryDescription(cat.description || '');
@@ -87,36 +72,62 @@ export default function CategoriesPage() {
     setCategoryQuery(cat.query || '');
     setCategorySubcategories(cat.subcategories || []);
     setError('');
+    setIsModalOpen(true);
   };
 
-  const handleSaveEdit = () => {
-    if (!editingCategoryId || !categoryName.trim()) return;
+  const handleModalClose = () => {
+    resetCategoryForm();
+    setIsModalOpen(false);
+  };
 
-    // Check if duplicate name
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryName.trim()) return;
+
+    // Verificar nombres duplicados
     if (categoriesList.some(c => c.name.toLowerCase() === categoryName.trim().toLowerCase() && c.id !== editingCategoryId)) {
       setError('Ya existe una categoría con este nombre');
       return;
     }
 
-    setCategoriesList(categoriesList.map(cat => 
-      cat.id === editingCategoryId
-        ? {
-            ...cat,
-            name: categoryName.trim(),
-            description: categoryDescription.trim(),
-            iconName: categoryIcon,
-            query: categoryQuery.trim() || categoryName.trim(),
-            subcategories: categorySubcategories
-          }
-        : cat
-    ));
-    resetCategoryForm();
-    setError('');
+    if (editingCategoryId) {
+      // Editar existente
+      setCategoriesList(categoriesList.map(cat => 
+        cat.id === editingCategoryId
+          ? {
+              ...cat,
+              name: categoryName.trim(),
+              description: categoryDescription.trim(),
+              iconName: categoryIcon,
+              query: categoryQuery.trim() || categoryName.trim(),
+              subcategories: categorySubcategories
+            }
+          : cat
+      ));
+    } else {
+      // Crear nueva
+      const newCat = {
+        id: Date.now(),
+        name: categoryName.trim(),
+        description: categoryDescription.trim(),
+        count: 0,
+        iconName: categoryIcon,
+        query: categoryQuery.trim() || categoryName.trim(),
+        subcategories: categorySubcategories,
+      };
+      setCategoriesList([...categoriesList, newCat]);
+    }
+
+    handleModalClose();
   };
 
   const handleDeleteCategory = (id: any) => {
-    setCategoriesList(categoriesList.filter(cat => cat.id !== id));
-    setError('');
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+      setCategoriesList(categoriesList.filter(cat => cat.id !== id));
+      setError('');
+      setSuccess('Categoría removida de la lista local. Guarda cambios para confirmar.');
+      setTimeout(() => setSuccess(''), 3000);
+    }
   };
 
   const handleAddSubcategory = () => {
@@ -138,6 +149,7 @@ export default function CategoriesPage() {
     setCategoryQuery('');
     setCategorySubcategories([]);
     setNewSubcategoryText('');
+    setError('');
   };
 
   const handleSaveChanges = async () => {
@@ -169,7 +181,7 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4 font-sans">
         <Loader2 className="w-8 h-8 animate-spin text-white" />
         <p className="text-zinc-500 text-xs tracking-wider uppercase font-semibold">Cargando Gestor de Categorías...</p>
       </div>
@@ -177,36 +189,50 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* Header and Save action */}
+    <div className="space-y-8 pb-12 font-sans text-zinc-300">
+      
+      {/* Header Visual */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-900 pb-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-zinc-100">
             <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white">
               <FolderOpen className="w-4 h-4" />
             </div>
-            <h1 className="text-2xl font-light font-heading tracking-tight">Categorías del Catálogo</h1>
+            <h1 className="text-2xl font-light tracking-tight">Categorías del Catálogo</h1>
           </div>
           <p className="text-xs text-zinc-500 font-light">Crea, edita y diseña subcategorías y portadas dinámicas para tus proyectos arquitectónicos en tiempo real.</p>
         </div>
 
-        <button
-          onClick={handleSaveChanges}
-          disabled={saving}
-          className="flex justify-center items-center gap-2 py-2.5 px-6 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5"
-        >
-          {saving ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-950" />
-          ) : (
-            <>
-              <Send className="w-3.5 h-3.5 text-zinc-950" />
-              <span>Guardar Cambios</span>
-            </>
-          )}
-        </button>
+        {/* Header Actions */}
+        <div className="flex items-center gap-3">
+          {/* Create Category Button */}
+          <button
+            onClick={handleOpenNewModal}
+            className="flex items-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 text-zinc-355 transition-all duration-200 active:scale-[0.98]"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nueva Categoría</span>
+          </button>
+
+          {/* Save Button */}
+          <button
+            onClick={handleSaveChanges}
+            disabled={saving}
+            className="flex justify-center items-center gap-2 py-2.5 px-5 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5"
+          >
+            {saving ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-950" />
+            ) : (
+              <>
+                <Send className="w-3.5 h-3.5 text-zinc-950" />
+                <span>Guardar Cambios</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Banners */}
+      {/* Alert Banners */}
       {error && (
         <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400 font-medium flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
@@ -221,254 +247,271 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* Main Grid content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Columns: Categories List */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 md:p-8 space-y-6">
-            <div className="border-b border-zinc-900 pb-3">
-              <h3 className="text-base font-light text-zinc-100 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-zinc-400" />
-                <span>Categorías Activas ({categoriesList.length})</span>
-              </h3>
-              <p className="text-[10px] text-zinc-500">Cualquier cambio realizado se aplicará en todo el sitio público al hacer clic en "Guardar Cambios".</p>
-            </div>
-
-            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-              {categoriesList.map((cat) => {
-                const CategoryIcon = getCategoryIcon(cat.iconName);
-                return (
-                  <div 
-                    key={cat.id} 
-                    className={`flex items-start justify-between gap-4 p-4 rounded-2xl transition-all duration-200 border ${
-                      editingCategoryId === cat.id 
-                        ? 'bg-zinc-900/60 border-zinc-700 shadow-md shadow-black/40' 
-                        : 'bg-zinc-900/20 border-zinc-900 hover:border-zinc-800'
-                    }`}
-                  >
-                    <div className="flex gap-4">
-                      {/* Icon box */}
-                      <div className="w-12 h-12 shrink-0 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300">
-                        <CategoryIcon className="w-5 h-5 text-zinc-100" />
-                      </div>
-
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-zinc-200">{cat.name}</span>
-                          <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-500 border border-zinc-800/80">
-                            {cat.query || cat.name}
-                          </span>
-                        </div>
-                        <p className="text-xs text-zinc-500 leading-relaxed font-light">{cat.description || 'Sin descripción'}</p>
-                        
-                        {cat.subcategories && cat.subcategories.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {cat.subcategories.map((sub: string, i: number) => (
-                              <span key={i} className="text-[9px] bg-zinc-900/60 text-zinc-400 border border-zinc-800 px-2 py-0.5 rounded-full">
-                                {sub}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+      {/* Full-width Grid list of categories */}
+      {categoriesList.length === 0 ? (
+        <div className="border border-zinc-900 bg-zinc-950/20 rounded-2xl p-16 flex flex-col items-center justify-center text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600">
+            <FolderOpen className="w-5 h-5" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-sm font-semibold text-zinc-200">No hay categorías</h4>
+            <p className="text-xs text-zinc-650 max-w-sm">Haz clic en "Nueva Categoría" en el header para añadir tus secciones al catálogo.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categoriesList.map((cat) => {
+            const CategoryIcon = getCategoryIcon(cat.iconName);
+            return (
+              <div 
+                key={cat.id} 
+                className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 group hover:border-zinc-800 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div className="space-y-4">
+                  {/* Top info and Icon */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-350 shadow-inner shadow-black group-hover:scale-105 transition-transform duration-300">
+                      <CategoryIcon className="w-5 h-5 text-white" />
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleStartEdit(cat)}
-                        className="p-2 text-zinc-400 hover:text-zinc-200 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl transition-all"
-                        title="Editar"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteCategory(cat.id)}
-                        className="p-2 text-red-400 hover:text-red-300 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/20 rounded-xl transition-all"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                    <span className="text-[9px] font-mono px-2.5 py-1 rounded-full bg-zinc-900 text-zinc-500 border border-zinc-850 truncate max-w-[140px]" title={`Query Unsplash: ${cat.query}`}>
+                      {cat.query || cat.name}
+                    </span>
+                  </div>
+
+                  {/* Body description */}
+                  <div className="space-y-1.5">
+                    <h3 className="text-sm font-semibold text-zinc-100 group-hover:text-white capitalize transition-colors">
+                      {cat.name}
+                    </h3>
+                    <p className="text-xs text-zinc-500 font-light leading-relaxed min-h-[32px]">
+                      {cat.description || 'Sin descripción descriptiva registrada.'}
+                    </p>
+                  </div>
+
+                  {/* Subcategories preview tags */}
+                  <div className="flex flex-wrap gap-1 pt-1 min-h-[26px]">
+                    {cat.subcategories && cat.subcategories.map((sub: string, i: number) => (
+                      <span key={i} className="text-[9px] bg-zinc-900 text-zinc-400 border border-zinc-850 px-2 py-0.5 rounded-full font-light">
+                        {sub}
+                      </span>
+                    ))}
+                    {(!cat.subcategories || cat.subcategories.length === 0) && (
+                      <span className="text-[9px] text-zinc-650 italic">Sin etiquetas</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Actions Footer */}
+                <div className="flex items-center justify-end gap-2 border-t border-zinc-900 pt-4 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal(cat)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-semibold bg-zinc-900 border border-zinc-850 hover:bg-zinc-850 hover:text-white transition-colors"
+                  >
+                    <Edit3 className="w-3 h-3 text-zinc-400" />
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCategory(cat.id)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-semibold bg-red-950/40 border border-red-900/10 text-red-400 hover:bg-red-900 hover:text-white transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Eliminar</span>
+                  </button>
+                </div>
+
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* SLIDING SIDE MODAL PANEL */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <>
+            {/* Dark Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleModalClose}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            />
+            
+            {/* Sliding Form Drawer */}
+            <motion.div
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 100 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-950 border-l border-zinc-900 shadow-2xl z-[101] overflow-y-auto"
+            >
+              <div className="p-8 space-y-6">
+                
+                {/* Modal Title bar */}
+                <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-light text-white font-heading">
+                      {editingCategoryId ? 'Editar Categoría' : 'Nueva Categoría'}
+                    </h3>
+                    <p className="text-xs text-zinc-500 font-light">
+                      {editingCategoryId ? 'Modifica los valores de la categoría seleccionada.' : 'Completa los campos para añadir una nueva categoría.'}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={handleModalClose}
+                    className="p-1.5 rounded-lg bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Form Elements */}
+                <form onSubmit={handleFormSubmit} className="space-y-6">
+                  
+                  {/* Category Name */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Nombre de Categoría</label>
+                    <input
+                      type="text"
+                      placeholder="ej. Casas Modernas"
+                      value={categoryName}
+                      onChange={(e) => setCategoryName(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-zinc-905 border border-zinc-850 rounded-xl text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-650"
+                      required
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Descripción Corta</label>
+                    <textarea
+                      rows={3}
+                      placeholder="Describe la esencia de esta categoría..."
+                      value={categoryDescription}
+                      onChange={(e) => setCategoryDescription(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-zinc-905 border border-zinc-850 rounded-xl text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-650 resize-none font-light leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Unsplash Query */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Buscador Unsplash (Palabra Clave)</label>
+                    <input
+                      type="text"
+                      placeholder="ej. modern villa luxury"
+                      value={categoryQuery}
+                      onChange={(e) => setCategoryQuery(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-zinc-905 border border-zinc-850 rounded-xl text-xs text-zinc-100 placeholder-zinc-750 focus:outline-none focus:ring-1 focus:ring-zinc-650 font-mono text-[10px]"
+                    />
+                    <span className="block text-[9px] text-zinc-600 font-light leading-normal">
+                      Esta palabra clave se usará para buscar imágenes en Unsplash de forma automática para la portada.
+                    </span>
+                  </div>
+
+                  {/* Icon Selector grid */}
+                  <div className="space-y-2">
+                    <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Icono Visual</label>
+                    <div className="grid grid-cols-5 gap-2 p-3 bg-zinc-900/30 border border-zinc-900 rounded-xl max-h-36 overflow-y-auto">
+                      {AVAILABLE_ICONS.map((iconName) => {
+                        const Icon = getCategoryIcon(iconName);
+                        return (
+                          <button
+                            key={iconName}
+                            type="button"
+                            onClick={() => setCategoryIcon(iconName)}
+                            className={`p-2.5 rounded-xl flex items-center justify-center border transition-all ${
+                              categoryIcon === iconName 
+                                ? 'bg-white text-zinc-950 border-white shadow-md' 
+                                : 'bg-zinc-950 text-zinc-400 border-zinc-900 hover:text-zinc-200 hover:border-zinc-850'
+                            }`}
+                            title={iconName}
+                          >
+                            <Icon className="w-4 h-4" />
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                );
-              })}
 
-              {categoriesList.length === 0 && (
-                <div className="flex flex-col items-center justify-center p-12 bg-zinc-900/10 border border-dashed border-zinc-900 rounded-2xl text-zinc-500">
-                  <FolderOpen className="w-8 h-8 text-zinc-600 mb-2" />
-                  <p className="text-xs italic">No hay categorías configuradas. Crea una para comenzar.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Form builder */}
-        <div className="space-y-6">
-          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 space-y-5">
-            <div className="border-b border-zinc-900 pb-2">
-              <h4 className="text-sm font-semibold text-zinc-200">
-                {editingCategoryId ? 'Editar Categoría' : 'Nueva Categoría'}
-              </h4>
-              <p className="text-[10px] text-zinc-500">
-                {editingCategoryId ? 'Modifica los valores de la categoría seleccionada.' : 'Completa los campos para añadir una nueva categoría.'}
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {/* Name field */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Nombre de Categoría</label>
-                <input
-                  type="text"
-                  placeholder="ej. Casas Modernas"
-                  value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-zinc-900/40 border border-zinc-900 rounded-xl text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
-                />
-              </div>
-
-              {/* Description field */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Descripción Corta</label>
-                <textarea
-                  rows={2}
-                  placeholder="Describe la esencia de esta categoría..."
-                  value={categoryDescription}
-                  onChange={(e) => setCategoryDescription(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-zinc-900/40 border border-zinc-900 rounded-xl text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800 resize-none"
-                />
-              </div>
-
-              {/* Unsplash query field */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider flex items-center gap-1">
-                  <span>Buscador Unsplash (Query)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="ej. modern villa luxury"
-                  value={categoryQuery}
-                  onChange={(e) => setCategoryQuery(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-zinc-900/40 border border-zinc-900 rounded-xl text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800 font-mono text-[10px]"
-                />
-                <span className="block text-[9px] text-zinc-600 font-light leading-relaxed">
-                  Esta palabra clave se usará para buscar imágenes en Unsplash de forma automática para la portada.
-                </span>
-              </div>
-
-              {/* Icon selector field */}
-              <div className="space-y-2">
-                <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Icono Visual</label>
-                <div className="grid grid-cols-6 gap-2 p-3 bg-zinc-900/40 border border-zinc-900 rounded-xl max-h-36 overflow-y-auto">
-                  {AVAILABLE_ICONS.map((iconName) => {
-                    const Icon = getCategoryIcon(iconName);
-                    return (
+                  {/* Subcategories / Tags builder */}
+                  <div className="space-y-2.5">
+                    <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Subcategorías (Etiquetas)</label>
+                    
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="ej. Minimalista"
+                        value={newSubcategoryText}
+                        onChange={(e) => setNewSubcategoryText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddSubcategory();
+                          }
+                        }}
+                        className="w-full px-3 py-2 bg-zinc-905 border border-zinc-850 rounded-xl text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-650"
+                      />
                       <button
-                        key={iconName}
                         type="button"
-                        onClick={() => setCategoryIcon(iconName)}
-                        className={`p-2 rounded-lg flex items-center justify-center border transition-all ${
-                          categoryIcon === iconName 
-                            ? 'bg-white text-zinc-950 border-white shadow-md' 
-                            : 'bg-zinc-950 text-zinc-400 border-zinc-900 hover:text-zinc-200 hover:border-zinc-800'
-                        }`}
-                        title={iconName}
+                        onClick={handleAddSubcategory}
+                        className="bg-white text-zinc-950 hover:bg-zinc-100 px-3.5 rounded-xl text-xs font-semibold shrink-0 transition-colors flex items-center justify-center"
                       >
-                        <Icon className="w-4 h-4" />
+                        <Plus className="w-3.5 h-3.5" />
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
+                    </div>
 
-              {/* Subcategories tags builder */}
-              <div className="space-y-2.5">
-                <label className="block text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Subcategorías (Etiquetas)</label>
-                
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="ej. Minimalista"
-                    value={newSubcategoryText}
-                    onChange={(e) => setNewSubcategoryText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddSubcategory();
-                      }
-                    }}
-                    className="w-full px-3 py-2 bg-zinc-900/40 border border-zinc-900 rounded-xl text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddSubcategory}
-                    className="bg-white text-zinc-950 hover:bg-zinc-100 px-3 rounded-xl text-xs font-semibold shrink-0 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
+                    <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2.5 bg-zinc-900/30 border border-zinc-900 rounded-xl">
+                      {categorySubcategories.map((sub, i) => (
+                        <span 
+                          key={i} 
+                          className="inline-flex items-center gap-1.5 text-[9px] bg-zinc-900 text-zinc-300 border border-zinc-850 pl-2.5 pr-1.5 py-0.5 rounded-full"
+                        >
+                          <span>{sub}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSubcategory(sub)}
+                            className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all font-bold text-[8px]"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
 
-                <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2 bg-zinc-900/40 border border-zinc-900 rounded-xl">
-                  {categorySubcategories.map((sub, i) => (
-                    <span 
-                      key={i} 
-                      className="inline-flex items-center gap-1 text-[10px] bg-zinc-900 text-zinc-300 border border-zinc-800 pl-2.5 pr-1.5 py-0.5 rounded-full"
+                      {categorySubcategories.length === 0 && (
+                        <span className="text-[10px] text-zinc-600 italic px-2 py-0.5 leading-none">Ninguna etiqueta agregada</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Submit actions */}
+                  <div className="flex gap-2 pt-6 border-t border-zinc-900">
+                    <button
+                      type="button"
+                      onClick={handleModalClose}
+                      className="flex-1 bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-850 hover:border-zinc-800 text-xs font-semibold py-2.5 rounded-xl transition-colors text-center"
                     >
-                      <span>{sub}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSubcategory(sub)}
-                        className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all font-bold text-[8px]"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-white text-zinc-950 hover:bg-zinc-100 text-xs font-semibold py-2.5 rounded-xl transition-all duration-150 text-center active:scale-[0.98]"
+                    >
+                      {editingCategoryId ? 'Guardar Cambios' : 'Añadir a la Lista'}
+                    </button>
+                  </div>
 
-                  {categorySubcategories.length === 0 && (
-                    <span className="text-[10px] text-zinc-600 italic px-2 py-0.5 leading-none">Ninguna subcategoría agregada</span>
-                  )}
-                </div>
+                </form>
+
               </div>
-            </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
-            {/* Form actions */}
-            <div className="flex gap-2 pt-2 border-t border-zinc-900">
-              {editingCategoryId ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleSaveEdit}
-                    className="flex-1 bg-white text-zinc-950 hover:bg-zinc-100 text-xs font-semibold py-2.5 rounded-xl transition-colors text-center"
-                  >
-                    Guardar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetCategoryForm}
-                    className="flex-1 bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800 hover:border-zinc-700 text-xs font-semibold py-2.5 rounded-xl transition-colors text-center"
-                  >
-                    Cancelar
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleAddCategory}
-                  className="w-full bg-white text-zinc-950 hover:bg-zinc-100 text-xs font-semibold py-2.5 rounded-xl transition-colors text-center"
-                >
-                  Añadir Categoría
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-      </div>
     </div>
   );
 }
