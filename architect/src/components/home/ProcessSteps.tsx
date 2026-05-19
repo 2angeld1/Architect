@@ -1,6 +1,35 @@
-import { processSteps } from '../../data/home';
+'use client';
+
+import { useCMS } from '../../hooks/front/useCMS';
+import { EditableText } from '../ui/Editable';
+import { Search, Download, FileCheck, Hammer } from 'lucide-react';
 
 const ProcessSteps = () => {
+  const { content = {} } = useCMS('home');
+
+  const steps = [
+    {
+      icon: Search,
+      title: content['process_step1_title'] || '1. Encuentra tu Diseño',
+      desc: content['process_step1_desc'] || 'Explora nuestra colección de planos premium y usa los filtros para hallar el diseño que se adapta a tu terreno y estilo de vida.',
+    },
+    {
+      icon: Download,
+      title: content['process_step2_title'] || '2. Descarga Inmediata',
+      desc: content['process_step2_desc'] || 'Recibe los archivos digitales completos (PDF y CAD) al instante después de tu compra segura. Sin esperas.',
+    },
+    {
+      icon: FileCheck,
+      title: content['process_step3_title'] || '3. Adapta y Tramita',
+      desc: content['process_step3_desc'] || 'Nuestros planos incluyen toda la información técnica necesaria para que tu ingeniero local realice los trámites municipales.',
+    },
+    {
+      icon: Hammer,
+      title: content['process_step4_title'] || '4. Construye tu Sueño',
+      desc: content['process_step4_desc'] || 'Entrega los planos a tu contratista y comienza la construcción con la seguridad de un diseño arquitectónico profesional.',
+    },
+  ];
+
   return (
     <section className="py-20 bg-secondary-900 text-white relative overflow-hidden">
       {/* Background decoration */}
@@ -12,21 +41,39 @@ const ProcessSteps = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
           <span className="text-primary-400 font-medium text-sm uppercase tracking-wider font-sans">
-            ¿Cómo funciona?
+            <EditableText
+              page="home"
+              section="process"
+              keyName="badge"
+              defaultValue={content['process_badge'] || '¿Cómo funciona?'}
+              as="span"
+            />
           </span>
           <h2 className="font-heading text-3xl lg:text-4xl font-bold mt-2">
-            Tu camino hacia el hogar ideal
+            <EditableText
+              page="home"
+              section="process"
+              keyName="title"
+              defaultValue={content['process_title'] || 'Tu camino hacia el hogar ideal'}
+              as="span"
+            />
           </h2>
           <p className="text-secondary-300 mt-4 max-w-2xl mx-auto font-sans">
-            Simplificamos el complejo proceso de arquitectura para que puedas enfocarte en lo importante: construir tu futuro.
+            <EditableText
+              page="home"
+              section="process"
+              keyName="description"
+              defaultValue={content['process_description'] || 'Simplificamos el complejo proceso de arquitectura para que puedas enfocarte en lo importante: construir tu futuro.'}
+              as="span"
+            />
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                  {processSteps.map((step, index) => (
+          {steps.map((step, index) => (
             <div key={index} className="relative group">
               {/* Connector Line (Desktop only) */}
-                  {index < processSteps.length - 1 && (
+              {index < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-8 left-1/2 w-full h-0.5 bg-secondary-700 -z-10 group-hover:bg-primary-500/50 transition-colors duration-500" />
               )}
               
@@ -35,10 +82,22 @@ const ProcessSteps = () => {
                   <step.icon className="w-7 h-7 text-primary-400 group-hover:text-primary-300" />
                 </div>
                 <h3 className="font-heading text-xl font-bold mb-3 group-hover:text-primary-300 transition-colors">
-                  {step.title}
+                  <EditableText
+                    page="home"
+                    section="process"
+                    keyName={`step${index + 1}_title`}
+                    defaultValue={step.title}
+                    as="span"
+                  />
                 </h3>
                 <p className="text-secondary-400 text-sm leading-relaxed font-sans group-hover:text-secondary-300 transition-colors">
-                  {step.description}
+                  <EditableText
+                    page="home"
+                    section="process"
+                    keyName={`step${index + 1}_desc`}
+                    defaultValue={step.desc}
+                    as="span"
+                  />
                 </p>
               </div>
             </div>

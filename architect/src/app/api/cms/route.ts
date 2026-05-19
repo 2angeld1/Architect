@@ -65,6 +65,112 @@ export async function GET(request: Request) {
       });
     }
 
+    // Auto-seed 'global' content if empty
+    if (page === 'global' && content.length === 0) {
+      const defaults = [
+        { page: 'global', section: 'footer', key: 'description', value: 'Más de 15 años diseñando espacios que inspiran. Planos arquitectónicos de alta calidad listos para construir.', type: 'text' },
+        { page: 'global', section: 'footer', key: 'address', value: 'Av. Reforma 123, Col. Centro, Ciudad de México, México', type: 'text' },
+        { page: 'global', section: 'footer', key: 'phone', value: '+52 55 1234 5678', type: 'text' },
+        { page: 'global', section: 'footer', key: 'email', value: 'contacto@archiquect.com', type: 'text' },
+        { page: 'global', section: 'announcement', key: 'promo_banner_active', value: 'false', type: 'text' },
+        { page: 'global', section: 'announcement', key: 'promo_banner_text', value: '✨ ¡OFERTA LIMITADA! Obtén un 15% de descuento en todos los planos usando el código PLAN15', type: 'text' },
+        { page: 'global', section: 'announcement', key: 'promo_banner_code', value: 'PLAN15', type: 'text' }
+      ];
+
+      await prisma.pageContent.createMany({
+        data: defaults
+      });
+
+      content = await prisma.pageContent.findMany({
+        where,
+      });
+    }
+
+    // Auto-seed 'home' content if empty
+    if (page === 'home' && content.length === 0) {
+      const defaults = [
+        { page: 'home', section: 'hero', key: 'slide1_title', value: 'Diseña tu Hogar Ideal', type: 'text' },
+        { page: 'home', section: 'hero', key: 'slide1_subtitle', value: 'Más de 500 proyectos arquitectónicos listos para construir', type: 'text' },
+        { page: 'home', section: 'hero', key: 'slide1_image', value: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80&fit=crop', type: 'image' },
+        
+        { page: 'home', section: 'hero', key: 'slide2_title', value: 'Arquitectura Moderna', type: 'text' },
+        { page: 'home', section: 'hero', key: 'slide2_subtitle', value: 'Planos detallados con las últimas tendencias de diseño', type: 'text' },
+        { page: 'home', section: 'hero', key: 'slide2_image', value: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80&fit=crop', type: 'image' },
+        
+        { page: 'home', section: 'hero', key: 'slide3_title', value: 'Tu Proyecto, Tu Estilo', type: 'text' },
+        { page: 'home', section: 'hero', key: 'slide3_subtitle', value: 'Casas modernas, clásicas y contemporáneas', type: 'text' },
+        { page: 'home', section: 'hero', key: 'slide3_image', value: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=80&fit=crop', type: 'image' },
+
+        { page: 'home', section: 'process', key: 'badge', value: '¿Cómo funciona?', type: 'text' },
+        { page: 'home', section: 'process', key: 'title', value: 'Tu camino hacia el hogar ideal', type: 'text' },
+        { page: 'home', section: 'process', key: 'description', value: 'Simplificamos el complejo proceso de arquitectura para que puedas enfocarte en lo importante: construir tu futuro.', type: 'text' },
+        
+        { page: 'home', section: 'process', key: 'step1_title', value: 'Explora y Elige', type: 'text' },
+        { page: 'home', section: 'process', key: 'step1_desc', value: 'Navega por nuestra selección de planos y encuentra el diseño perfecto para tu estilo de vida.', type: 'text' },
+        
+        { page: 'home', section: 'process', key: 'step2_title', value: 'Personaliza', type: 'text' },
+        { page: 'home', section: 'process', key: 'step2_desc', value: 'Adaptamos las dimensiones, distribución y fachadas del plano a las condiciones de tu terreno.', type: 'text' },
+        
+        { page: 'home', section: 'process', key: 'step3_title', value: 'Descarga inmediata', type: 'text' },
+        { page: 'home', section: 'process', key: 'step3_desc', value: 'Obtén planos técnicos completos listos para radicar y tramitar licencias de construcción.', type: 'text' },
+        
+        { page: 'home', section: 'process', key: 'step4_title', value: 'Construye', type: 'text' },
+        { page: 'home', section: 'process', key: 'step4_desc', value: 'Te conectamos con los mejores constructores locales y te asesoramos durante todo el proceso.', type: 'text' },
+        
+        { page: 'home', section: 'comparison', key: 'badge', value: 'Toma la mejor decisión', type: 'text' },
+        { page: 'home', section: 'comparison', key: 'title', value: '¿Por qué elegir un proyecto listo?', type: 'text' },
+        { page: 'home', section: 'comparison', key: 'description', value: 'Compara las ventajas de nuestros proyectos listos para construir frente al proceso tradicional.', type: 'text' },
+        
+        { page: 'home', section: 'contact', key: 'badge', value: 'Estamos aquí para ti', type: 'text' },
+        { page: 'home', section: 'contact', key: 'title', value: '¿Tienes un proyecto en mente?', type: 'text' },
+        { page: 'home', section: 'contact', key: 'description', value: 'Nuestro equipo de expertos está listo para ayudarte a encontrar el proyecto perfecto o crear una cotización personalizada para tu próximo hogar.', type: 'text' },
+        { page: 'home', section: 'contact', key: 'hours_week', value: 'Lun - Vie: 9:00 - 18:00', type: 'text' },
+        { page: 'home', section: 'contact', key: 'hours_sat', value: 'Sáb: 9:00 - 14:00', type: 'text' },
+
+        { page: 'home', section: 'benefits', key: 'benefits_count', value: '6', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'badge', value: '¿Por qué elegirnos?', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'title', value: 'Beneficios de Comprar con Nosotros', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'description', value: 'Más de 15 años de experiencia respaldan cada uno de nuestros proyectos', type: 'text' },
+        
+        { page: 'home', section: 'benefits', key: 'item1_title', value: 'Compra Segura', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'item1_desc', value: 'Pagos protegidos y garantía de satisfacción en cada proyecto', type: 'text' },
+        
+        { page: 'home', section: 'benefits', key: 'item2_title', value: 'Entrega Inmediata', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'item2_desc', value: 'Descarga tus planos al instante después de la compra', type: 'text' },
+        
+        { page: 'home', section: 'benefits', key: 'item3_title', value: 'Calidad Premium', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'item3_desc', value: 'Diseños que cumplen normativas locales e internacionales', type: 'text' },
+        
+        { page: 'home', section: 'benefits', key: 'item4_title', value: 'Soporte Experto', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'item4_desc', value: 'Asesoría profesional durante todo el proceso', type: 'text' },
+        
+        { page: 'home', section: 'benefits', key: 'item5_title', value: 'Envío Gratis', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'item5_desc', value: 'Documentación física sin costo adicional', type: 'text' },
+        
+        { page: 'home', section: 'benefits', key: 'item6_title', value: 'Garantía de Cambio', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'item6_desc', value: '30 días para cambiar tu proyecto si no te convence', type: 'text' },
+
+        { page: 'home', section: 'benefits', key: 'trust_title', value: 'Confía en los expertos', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_desc', value: 'Únete a más de 10,000 familias que ya construyeron su hogar con nuestros proyectos', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat1_num', value: '500+', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat1_label', value: 'Proyectos', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat2_num', value: '10K+', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat2_label', value: 'Clientes', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat3_num', value: '15+', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat3_label', value: 'Años', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat4_num', value: '98%', type: 'text' },
+        { page: 'home', section: 'benefits', key: 'trust_stat4_label', value: 'Satisfacción', type: 'text' }
+      ];
+
+      await prisma.pageContent.createMany({
+        data: defaults
+      });
+
+      content = await prisma.pageContent.findMany({
+        where,
+      });
+    }
+
     // Format into an easily usable object { [key]: value }
     const formattedContent = content.reduce((acc: any, item: any) => {
       acc[`${item.section}_${item.key}`] = item.value;

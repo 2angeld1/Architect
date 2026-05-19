@@ -55,6 +55,7 @@ model Project {
   floors      Int
   style       String
   isActive    Boolean         @default(true)
+  isFeatured  Boolean         @default(false)
   
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -177,5 +178,36 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   @@index([email])
+}
+
+// Modelo de Cupones / Promociones
+model Coupon {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  discountType String    // "percentage" | "fixed"
+  value        Decimal   @db.Decimal(10, 2)
+  isActive     Boolean   @default(true)
+  expiresAt    DateTime?
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([code])
+}
+
+// Modelo de Testimonios
+model Testimonial {
+  id         String    @id @default(uuid())
+  name       String
+  role       String?   // Empresa o cargo
+  rating     Int       // 1-5 estrellas
+  comment    String    @db.Text
+  approved   Boolean   @default(false)
+  
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([approved])
+  @@index([rating])
 }
 

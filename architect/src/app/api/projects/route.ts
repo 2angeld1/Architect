@@ -36,7 +36,8 @@ export async function POST(request: Request) {
         floors: body.floors || 1,
         style: body.style || 'Moderno',
         images: body.images || [],
-        isActive: true,
+        isActive: body.isActive !== undefined ? Boolean(body.isActive) : true,
+        isFeatured: body.isFeatured !== undefined ? Boolean(body.isFeatured) : false,
       }
     });
 

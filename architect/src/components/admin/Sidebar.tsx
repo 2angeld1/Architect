@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, FolderKanban, CalendarDays,
   Users, Settings, LogOut, Hexagon,
-  Globe, FolderOpen, Compass, Images
+  Globe, FolderOpen, Compass, Images, Tag, MessageSquare
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -15,8 +15,10 @@ const menuItems = [
   { icon: FolderOpen, label: 'Categorías', href: '/admin/categories' },
   { icon: Compass, label: 'Navegación', href: '/admin/menus' },
   { icon: Images, label: 'Galería', href: '/admin/media' },
+  { icon: Tag, label: 'Promociones', href: '/admin/promotions' },
   { icon: CalendarDays, label: 'Cotizaciones', href: '/admin/reservations' },
   { icon: Users, label: 'Clientes', href: '/admin/clients' },
+  { icon: MessageSquare, label: 'Testimonios', href: '/admin/testimonials' },
   { icon: Settings, label: 'Configuración', href: '/admin/settings' },
 ];
 

@@ -65,3 +65,37 @@ export const sendResetPasswordEmail = async (to: string, resetLink: string) => {
     throw error;
   }
 };
+
+export const sendTestimonialEmail = async (to: string, testimonial: { name: string; role?: string; rating: number; comment: string }) => {
+  const mailOptions = {
+    from: `"Architect Admin" <${process.env.SMTP_FROM}>`,
+    to,
+    subject: `✨ Nuevo Testimonio Recibido: ${testimonial.name} (${testimonial.rating} ⭐)`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 12px; background-color: #ffffff;">
+        <h2 style="color: #09090b; font-weight: 300; border-bottom: 1px solid #e4e4e7; padding-bottom: 12px; margin-bottom: 16px;">¡Nuevo Testimonio Recibido!</h2>
+        <p style="color: #71717a; font-size: 14px; line-height: 1.5;">Un cliente ha enviado su opinión sobre vuestros servicios desde el portal web público.</p>
+        
+        <div style="background-color: #f4f4f5; padding: 16px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0 0 8px 0; font-size: 14px; color: #09090b;"><strong>Cliente:</strong> ${testimonial.name}</p>
+          ${testimonial.role ? `<p style="margin: 0 0 8px 0; font-size: 14px; color: #71717a;"><strong>Empresa / Puesto:</strong> ${testimonial.role}</p>` : ''}
+          <p style="margin: 0 0 8px 0; font-size: 14px; color: #eab308;"><strong>Calificación:</strong> ${'★'.repeat(testimonial.rating)}${'☆'.repeat(5 - testimonial.rating)} (${testimonial.rating}/5 estrellas)</p>
+          <p style="margin: 12px 0 0 0; font-size: 14px; color: #27272a; line-height: 1.6; font-style: italic;">"${testimonial.comment}"</p>
+        </div>
+        
+        <p style="color: #71717a; font-size: 14px; line-height: 1.5;">Puedes revisar, aprobar o desestimar este comentario en la sección de **Testimonios** del Panel de Administración.</p>
+        <div style="margin: 24px 0; text-align: center;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/testimonials" style="background-color: #09090b; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block;">Ver en el Panel Administrativo</a>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    return info;
+  } catch (error) {
+    console.error('Error sending testimonial notification email: ', error);
+    throw error;
+  }
+};

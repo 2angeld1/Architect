@@ -12,23 +12,21 @@ export const useFeaturedProjects = () => {
     queryKey: ['featured-projects-home'],
     queryFn: async () => {
       try {
-        const featuredBase = mockProjects.slice(0, 6);
-        const photos = await searchPhotos('luxury modern house exterior', 6);
+        const res = await fetch('/api/projects');
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error('Failed to fetch projects');
+        const allProjects: Project[] = json.data || [];
         
-        if (photos.length > 0) {
-          return featuredBase.map((project, index) => ({
-            ...project,
-            images: [
-              photos[index] 
-                ? `${photos[index].urls.raw}&w=700&q=85&fit=crop`
-                : project.images[0],
-              ...project.images.slice(1)
-            ],
-          }));
+        // Filter by isFeatured and isActive
+        const featured = allProjects.filter((p: any) => p.isFeatured && p.isActive);
+        
+        // If there are no featured projects in the DB yet, fall back to mock projects
+        if (featured.length === 0) {
+          return mockProjects.slice(0, 6);
         }
-        return featuredBase;
+        return featured;
       } catch (error) {
-        console.error('Error fetching project images', error);
+        console.error('Error fetching featured projects', error);
         return mockProjects.slice(0, 6);
       }
     },

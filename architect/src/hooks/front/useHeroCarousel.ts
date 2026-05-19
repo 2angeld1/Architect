@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback, useEffect } from 'react';
-import { searchPhotos, type UnsplashPhoto } from '../../services/unsplash';
-import { heroSlideContent } from '../../data/home';
 
 export interface HeroSlide {
   image: string;
@@ -31,7 +29,7 @@ const fallbackSlides: HeroSlide[] = [
   }
 ];
 
-export const useHeroCarousel = (autoInterval = 6000) => {
+export const useHeroCarousel = (autoInterval = 6000, isEditMode = false) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -39,18 +37,35 @@ export const useHeroCarousel = (autoInterval = 6000) => {
     queryKey: ['hero-carousel-slides'],
     queryFn: async () => {
       try {
-        const photos = await searchPhotos('modern house architecture', 3);
-        if (photos && photos.length > 0) {
-          return photos.map((photo: UnsplashPhoto, index: number) => ({
-            image: `${photo.urls.raw}&w=1920&q=80&fit=crop`,
-            title: heroSlideContent[index % heroSlideContent.length].title,
-            subtitle: heroSlideContent[index % heroSlideContent.length].subtitle,
-            credit: photo.user.name,
-          }));
+        const res = await fetch('/api/cms?page=home');
+        const json = await res.json();
+
+        if (json.success && json.formatted && Object.keys(json.formatted).length > 0) {
+          const cms = json.formatted;
+          return [
+            {
+              image: cms['hero_slide1_image'] || fallbackSlides[0].image,
+              title: cms['hero_slide1_title'] || fallbackSlides[0].title,
+              subtitle: cms['hero_slide1_subtitle'] || fallbackSlides[0].subtitle,
+              credit: 'CMS'
+            },
+            {
+              image: cms['hero_slide2_image'] || fallbackSlides[1].image,
+              title: cms['hero_slide2_title'] || fallbackSlides[1].title,
+              subtitle: cms['hero_slide2_subtitle'] || fallbackSlides[1].subtitle,
+              credit: 'CMS'
+            },
+            {
+              image: cms['hero_slide3_image'] || fallbackSlides[2].image,
+              title: cms['hero_slide3_title'] || fallbackSlides[2].title,
+              subtitle: cms['hero_slide3_subtitle'] || fallbackSlides[2].subtitle,
+              credit: 'CMS'
+            }
+          ];
         }
         return fallbackSlides;
       } catch (error) {
-        console.error('Error loading images from Unsplash, loading fallbacks:', error);
+        console.error('Error loading slides from CMS:', error);
         return fallbackSlides;
       }
     },
@@ -78,13 +93,13 @@ export const useHeroCarousel = (autoInterval = 6000) => {
   };
 
   useEffect(() => {
-    if (slides.length > 0) {
+    if (slides.length > 0 && !isEditMode) {
       const timer = setInterval(() => {
         nextSlide();
       }, autoInterval);
       return () => clearInterval(timer);
     }
-  }, [currentSlide, slides.length, nextSlide, autoInterval]);
+  }, [currentSlide, slides.length, nextSlide, autoInterval, isEditMode]);
 
   return {
     slides,

@@ -4,16 +4,37 @@ import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight, Search, Loader2 } from 'lucide-react';
 import { useHeroCarousel } from '../../hooks/front/useHeroCarousel';
 import { quickCategories } from '../../data/home';
+import { useVisualEditor } from '../../context/VisualEditorContext';
+import { EditableText, EditableImage } from '../ui/Editable';
+import { useQuery } from '@tanstack/react-query';
 
 const HeroCarousel = () => {
-    const {
-        slides,
-        currentSlide,
-        isLoading,
-        nextSlide,
-        prevSlide,
-        goToSlide
-    } = useHeroCarousel();
+  const { isEditMode } = useVisualEditor();
+  const {
+    slides,
+    currentSlide,
+    isLoading,
+    nextSlide,
+    prevSlide,
+    goToSlide
+  } = useHeroCarousel(6000, isEditMode);
+
+  // Fetch actual projects to calculate dynamic counts for houses, apartments, commercial
+  const { data: projects = [] } = useQuery<any[]>({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const res = await fetch('/api/projects');
+      const json = await res.json();
+      return json.success ? json.data : [];
+    }
+  });
+
+  const getCategoryCount = (label: string) => {
+    const activeCount = projects.filter(
+      p => p.category?.toLowerCase() === label.toLowerCase() && p.isActive
+    ).length;
+    return `${activeCount}`;
+  };
 
   if (isLoading) {
     return (
@@ -32,24 +53,37 @@ const HeroCarousel = () => {
         <div
           key={index}
           className={`absolute inset-0 transition-opacity duration-700 ${
-            index === currentSlide ? 'opacity-100' : 'opacity-0'
+            index === currentSlide ? 'opacity-100 z-0' : 'opacity-0 -z-10'
           }`}
         >
-          <img
-            src={slide.image}
-            alt={slide.title}
-            className="w-full h-full object-cover"
-          />
+          {index === currentSlide ? (
+            <EditableImage
+              page="home"
+              section="hero"
+              keyName={`slide${index + 1}_image`}
+              defaultUrl={slide.image}
+              alt={slide.title}
+              className="w-full h-full object-cover"
+              containerClassName="absolute inset-0 w-full h-full"
+              buttonClassName="bottom-20 right-4"
+            />
+          ) : (
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className="w-full h-full object-cover"
+            />
+          )}
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
         </div>
       ))}
 
       {/* Content */}
-      <div className="relative z-10 h-full flex items-center">
+      <div className="relative z-10 h-full flex items-center pointer-events-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-20">
-          <div className="max-w-2xl">
+          <div className="max-w-2xl pointer-events-auto">
             {/* Slide Content */}
             <div className="mb-8">
               <span className="inline-block px-4 py-1.5 bg-primary-500/20 backdrop-blur-sm text-primary-300 rounded-full text-sm font-medium mb-6 border border-primary-400/30">
@@ -57,11 +91,23 @@ const HeroCarousel = () => {
               </span>
               
               <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-                {slides[currentSlide].title}
+                <EditableText
+                  page="home"
+                  section="hero"
+                  keyName={`slide${currentSlide + 1}_title`}
+                  defaultValue={slides[currentSlide].title}
+                  as="span"
+                />
               </h1>
               
               <p className="text-lg sm:text-xl text-white/80 mb-8 leading-relaxed font-sans">
-                {slides[currentSlide].subtitle}
+                <EditableText
+                  page="home"
+                  section="hero"
+                  keyName={`slide${currentSlide + 1}_subtitle`}
+                  defaultValue={slides[currentSlide].subtitle}
+                  as="span"
+                />
               </p>
             </div>
 
@@ -96,7 +142,7 @@ const HeroCarousel = () => {
                 >
                   <cat.icon className="w-5 h-5 text-primary-400 group-hover:text-primary-300" />
                   <span className="text-white font-medium">{cat.label}</span>
-                  <span className="text-primary-400 text-sm">{cat.count}</span>
+                  <span className="text-primary-400 text-sm">{getCategoryCount(cat.label)}</span>
                 </Link>
               ))}
             </div>
@@ -117,7 +163,7 @@ const HeroCarousel = () => {
           {slides.map((_, index) => (
             <button
               key={index}
-                  onClick={() => goToSlide(index)}
+              onClick={() => goToSlide(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === currentSlide 
                   ? 'w-8 bg-primary-500' 
@@ -136,7 +182,7 @@ const HeroCarousel = () => {
       </div>
 
       {/* Photo Credit */}
-      {slides[currentSlide]?.credit && (
+      {slides[currentSlide]?.credit && slides[currentSlide].credit !== 'CMS' && (
         <div className="absolute bottom-2 right-4 z-20 text-white/40 text-xs font-sans">
           Foto: {slides[currentSlide].credit} / Unsplash
         </div>

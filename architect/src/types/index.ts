@@ -14,6 +14,8 @@ export interface Project {
   bathrooms: number;
   floors: number;
   style: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
   createdAt: string;
   updatedAt: string;
 }

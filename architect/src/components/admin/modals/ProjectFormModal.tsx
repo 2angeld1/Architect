@@ -116,6 +116,38 @@ export default function ProjectFormModal({ isOpen, onClose, onSubmit, isLoading,
                 placeholder="Ej. 150000"
               />
             </div>
+            
+            <div className="col-span-2 mt-2">
+              <label htmlFor="isFeatured" className="flex items-center justify-between gap-4 bg-zinc-950 p-4 border border-zinc-850 rounded-xl cursor-pointer hover:border-zinc-800 transition-all duration-300 group">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-zinc-200 font-sans group-hover:text-white transition-colors">
+                      Destacar Proyecto
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-medium border border-amber-500/20 font-sans">
+                      ★ Portada Home
+                    </span>
+                  </div>
+                  <span className="block text-[11px] text-zinc-500 font-sans leading-normal">
+                    Los proyectos destacados aparecerán de forma prioritaria en la sección de recomendados del catálogo principal.
+                  </span>
+                </div>
+                
+                {/* Custom Toggle Switch */}
+                <div className="relative shrink-0 select-none">
+                  <input 
+                    type="checkbox"
+                    id="isFeatured"
+                    {...register('isFeatured')}
+                    className="sr-only peer"
+                  />
+                  {/* Track */}
+                  <div className="w-11 h-6 bg-zinc-800 rounded-full peer-checked:bg-amber-500 transition-colors duration-300 outline-none ring-1 ring-zinc-700/50 peer-checked:ring-amber-400/30" />
+                  {/* Thumb / Knob */}
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-zinc-400 rounded-full transition-all duration-300 transform peer-checked:translate-x-5 peer-checked:bg-white shadow-md shadow-black/40" />
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 

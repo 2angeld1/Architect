@@ -1,40 +1,217 @@
-import { benefits } from '../../data/home';
+'use client';
+
+import { useCMS } from '@/hooks/front/useCMS';
+import { EditableText } from '../ui/Editable';
+import { useVisualEditor } from '@/context/VisualEditorContext';
+import { 
+  Shield, 
+  Clock, 
+  Award, 
+  HeartHandshake, 
+  Truck, 
+  RefreshCw, 
+  Trash2, 
+  Plus 
+} from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Benefits = () => {
+  const { content } = useCMS('home');
+  const { isEditMode, saveBlock } = useVisualEditor();
+
+  const totalCount = parseInt(content.benefits_count || '6', 10);
+
+  const getIconConfig = (index: number) => {
+    const configs = [
+      { icon: Shield, color: 'bg-blue-100 text-blue-600', defaultTitle: 'Compra Segura', defaultDesc: 'Pagos protegidos y garantía de satisfacción.' },
+      { icon: Clock, color: 'bg-emerald-100 text-emerald-600', defaultTitle: 'Entrega Inmediata', defaultDesc: 'Descarga tus planos al instante después de la compra.' },
+      { icon: Award, color: 'bg-amber-100 text-amber-600', defaultTitle: 'Calidad Premium', defaultDesc: 'Diseños que cumplen normativas locales e internacionales.' },
+      { icon: HeartHandshake, color: 'bg-rose-100 text-rose-600', defaultTitle: 'Soporte Experto', defaultDesc: 'Asesoría profesional durante todo el proceso.' },
+      { icon: Truck, color: 'bg-violet-100 text-violet-600', defaultTitle: 'Envío Gratis', defaultDesc: 'Documentación física sin costo adicional.' },
+      { icon: RefreshCw, color: 'bg-cyan-100 text-cyan-600', defaultTitle: 'Garantía de Cambio', defaultDesc: '30 días para cambiar tu proyecto si no te convence.' },
+    ];
+    return configs[index % configs.length];
+  };
+
+  const handleAddItem = async () => {
+    const newIdx = totalCount + 1;
+    const defaultConf = getIconConfig(totalCount); // zero-based matches newIdx - 1
+    
+    toast.loading('Agregando nuevo beneficio...', { id: 'add-benefit' });
+    try {
+      // Save default title and description
+      await saveBlock({
+        page: 'home',
+        section: 'benefits',
+        key: `item${newIdx}_title`,
+        value: defaultConf.defaultTitle,
+        type: 'text',
+      });
+      await saveBlock({
+        page: 'home',
+        section: 'benefits',
+        key: `item${newIdx}_desc`,
+        value: defaultConf.defaultDesc,
+        type: 'text',
+      });
+      // Save new count
+      await saveBlock({
+        page: 'home',
+        section: 'benefits',
+        key: 'benefits_count',
+        value: String(newIdx),
+        type: 'text',
+      });
+      toast.success('¡Beneficio agregado con éxito!', { id: 'add-benefit' });
+    } catch (err) {
+      toast.error('Error al agregar beneficio', { id: 'add-benefit' });
+    }
+  };
+
+  const handleDeleteItem = async (deleteIdx: number) => {
+    if (totalCount <= 1) {
+      toast.error('Debes tener al menos un beneficio visible.');
+      return;
+    }
+
+    if (window.confirm('¿Estás seguro de que deseas eliminar este beneficio?')) {
+      toast.loading('Eliminando beneficio...', { id: 'delete-benefit' });
+      try {
+        // Shift items after deleteIdx down by 1
+        for (let i = deleteIdx; i < totalCount; i++) {
+          const nextTitle = content[`item${i + 1}_title`] || '';
+          const nextDesc = content[`item${i + 1}_desc`] || '';
+          await saveBlock({
+            page: 'home',
+            section: 'benefits',
+            key: `item${i}_title`,
+            value: nextTitle,
+            type: 'text',
+          });
+          await saveBlock({
+            page: 'home',
+            section: 'benefits',
+            key: `item${i}_desc`,
+            value: nextDesc,
+            type: 'text',
+          });
+        }
+        // Save new count
+        await saveBlock({
+          page: 'home',
+          section: 'benefits',
+          key: 'benefits_count',
+          value: String(totalCount - 1),
+          type: 'text',
+        });
+        toast.success('¡Beneficio eliminado con éxito!', { id: 'delete-benefit' });
+      } catch (err) {
+        toast.error('Error al eliminar beneficio', { id: 'delete-benefit' });
+      }
+    }
+  };
+
+  // Render items based on count
+  const items = Array.from({ length: totalCount }, (_, i) => i + 1);
+
   return (
     <section className="py-20 bg-gradient-to-b from-secondary-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
           <span className="text-primary-600 font-medium text-sm uppercase tracking-wider">
-            ¿Por qué elegirnos?
+            <EditableText
+              page="home"
+              section="benefits"
+              keyName="badge"
+              defaultValue={content.badge || '¿Por qué elegirnos?'}
+            />
           </span>
           <h2 className="font-heading text-3xl lg:text-4xl font-bold text-secondary-800 mt-2">
-            Beneficios de Comprar con Nosotros
+            <EditableText
+              page="home"
+              section="benefits"
+              keyName="title"
+              defaultValue={content.title || 'Beneficios de Comprar con Nosotros'}
+              as="span"
+            />
           </h2>
           <p className="text-secondary-600 mt-3 max-w-2xl mx-auto">
-            Más de 15 años de experiencia respaldan cada uno de nuestros proyectos
+            <EditableText
+              page="home"
+              section="benefits"
+              keyName="description"
+              defaultValue={content.description || 'Más de 15 años de experiencia respaldan cada uno de nuestros proyectos'}
+              as="span"
+            />
           </p>
         </div>
 
         {/* Benefits Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {benefits.map((benefit, index) => (
-            <div
-              key={index}
-              className="group p-6 bg-white rounded-2xl border border-secondary-100 hover:border-primary-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className={`w-14 h-14 ${benefit.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                <benefit.icon className="w-7 h-7" />
+          {items.map((num) => {
+            const config = getIconConfig(num - 1);
+            const title = content[`item${num}_title`] || config.defaultTitle;
+            const desc = content[`item${num}_desc`] || config.defaultDesc;
+
+            return (
+              <div
+                key={num}
+                className="group relative p-6 bg-white rounded-2xl border border-secondary-100 hover:border-primary-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fadeIn"
+              >
+                {/* Delete button (only in edit mode) */}
+                {isEditMode && (
+                  <button
+                    onClick={() => handleDeleteItem(num)}
+                    className="absolute top-4 right-4 bg-rose-500 hover:bg-rose-600 text-white p-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity active:scale-95 shadow-md z-20"
+                    title="Eliminar este beneficio"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
+                <div className={`w-14 h-14 ${config.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
+                  <config.icon className="w-7 h-7" />
+                </div>
+                <h3 className="font-heading text-lg font-bold text-secondary-800 mb-2">
+                  <EditableText
+                    page="home"
+                    section="benefits"
+                    keyName={`item${num}_title`}
+                    defaultValue={title}
+                    as="span"
+                  />
+                </h3>
+                <p className="text-secondary-600 text-sm leading-relaxed">
+                  <EditableText
+                    page="home"
+                    section="benefits"
+                    keyName={`item${num}_desc`}
+                    defaultValue={desc}
+                    as="span"
+                  />
+                </p>
               </div>
-              <h3 className="font-heading text-lg font-bold text-secondary-800 mb-2">
-                {benefit.title}
-              </h3>
-              <p className="text-secondary-600 text-sm leading-relaxed">
-                {benefit.description}
-              </p>
-            </div>
-          ))}
+            );
+          })}
+
+          {/* Add more button (only in edit mode) */}
+          {isEditMode && (
+            <button
+              onClick={handleAddItem}
+              className="flex flex-col items-center justify-center p-6 bg-zinc-50/50 hover:bg-zinc-50 border-2 border-dashed border-zinc-200 hover:border-amber-500/50 rounded-2xl group transition-all duration-300 cursor-pointer min-h-[180px]"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                <Plus className="w-6 h-6" />
+              </div>
+              <span className="text-sm font-bold text-zinc-600 group-hover:text-amber-500 transition-colors">
+                Agregar Beneficio
+              </span>
+              <span className="text-[11px] text-zinc-400 mt-1">
+                Añade una nueva tarjeta a la cuadrícula
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Trust Banner */}
@@ -49,30 +226,57 @@ const Benefits = () => {
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="text-center lg:text-left">
               <h3 className="font-heading text-2xl lg:text-3xl font-bold text-white mb-2">
-                Confía en los expertos
+                <EditableText
+                  page="home"
+                  section="benefits"
+                  keyName="trust_title"
+                  defaultValue={content.trust_title || 'Confía en los expertos'}
+                  as="span"
+                />
               </h3>
               <p className="text-primary-100 max-w-lg">
-                Únete a más de 10,000 familias que ya construyeron su hogar con nuestros proyectos
+                <EditableText
+                  page="home"
+                  section="benefits"
+                  keyName="trust_desc"
+                  defaultValue={content.trust_desc || 'Únete a más de 10,000 familias que ya construyeron su hogar con nuestros proyectos'}
+                  as="span"
+                />
               </p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-8">
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-white">500+</div>
-                <div className="text-primary-200 text-sm">Proyectos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-white">10K+</div>
-                <div className="text-primary-200 text-sm">Clientes</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-white">15+</div>
-                <div className="text-primary-200 text-sm">Años</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-white">98%</div>
-                <div className="text-primary-200 text-sm">Satisfacción</div>
-              </div>
+              {[1, 2, 3, 4].map((num) => {
+                let defaultNum = '';
+                let defaultLabel = '';
+                if (num === 1) { defaultNum = '500+'; defaultLabel = 'Proyectos'; }
+                if (num === 2) { defaultNum = '10K+'; defaultLabel = 'Clientes'; }
+                if (num === 3) { defaultNum = '15+'; defaultLabel = 'Años'; }
+                if (num === 4) { defaultNum = '98%'; defaultLabel = 'Satisfacción'; }
+
+                return (
+                  <div key={num} className="text-center">
+                    <div className="text-3xl lg:text-4xl font-bold text-white">
+                      <EditableText
+                        page="home"
+                        section="benefits"
+                        keyName={`trust_stat${num}_num`}
+                        defaultValue={content[`trust_stat${num}_num`] || defaultNum}
+                        as="span"
+                      />
+                    </div>
+                    <div className="text-primary-200 text-sm">
+                      <EditableText
+                        page="home"
+                        section="benefits"
+                        keyName={`trust_stat${num}_label`}
+                        defaultValue={content[`trust_stat${num}_label`] || defaultLabel}
+                        as="span"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

@@ -17,6 +17,7 @@ type Project = {
   category: string;
   price: number;
   isActive: boolean;
+  isFeatured?: boolean;
   createdAt: string;
 };
 
@@ -51,6 +52,18 @@ export default function ProjectsTable() {
     columnHelper.accessor('price', {
       header: 'Precio',
       cell: info => <span className="text-zinc-400 font-mono">${Number(info.getValue()).toLocaleString()}</span>,
+    }),
+    columnHelper.accessor('isFeatured', {
+      header: 'Destacado',
+      cell: info => (
+        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+          info.getValue() 
+            ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
+            : 'bg-zinc-800/30 text-zinc-500 border-zinc-700/50'
+        }`}>
+          {info.getValue() ? '★ Destacado' : 'Estándar'}
+        </span>
+      ),
     }),
     columnHelper.accessor('isActive', {
       header: 'Estado',

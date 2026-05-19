@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MegaMenu from './MegaMenu';
 import { useLayout } from '../../hooks/front/useLayout';
 import { useCMS } from '../../hooks/front/useCMS';
+import { EditableText } from '../ui/Editable';
 
 interface HeaderProps {}
 
@@ -89,6 +90,16 @@ const Header = () => {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBg}`}>
+      {content.promo_banner_active === 'true' && !isScrolled && (
+        <div className="w-full bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-zinc-950 text-center py-2.5 px-4 text-xs font-semibold tracking-wide shadow-sm flex items-center justify-center gap-2 relative z-50 font-sans border-b border-amber-600/30">
+          <span>{content.promo_banner_text}</span>
+          {content.promo_banner_code && (
+            <span className="font-mono bg-zinc-950 text-white px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ml-1">
+              {content.promo_banner_code}
+            </span>
+          )}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Primary Row */}
         <div className="flex justify-between items-center h-16">
@@ -122,13 +133,20 @@ const Header = () => {
           {/* Right Section */}
           <div className="hidden lg:flex items-center space-x-5">
             {/* Phone */}
-            <a
-              href="tel:+525512345678"
-              className={`flex items-center space-x-2 ${textColor} ${linkHoverColor} font-medium transition-colors duration-200`}
-            >
+            <div className={`flex items-center space-x-2 ${textColor} font-medium`}>
               <Phone className="w-4 h-4" />
-              <span className="text-sm">+52 55 1234 5678</span>
-            </a>
+              <a
+                href={`tel:${content?.contact_phone || '+52 55 1234 5678'}`}
+                className={`${linkHoverColor} transition-colors duration-200 text-sm`}
+              >
+                <EditableText
+                  page="global"
+                  section="contact"
+                  keyName="phone"
+                  defaultValue={content?.contact_phone || '+52 55 1234 5678'}
+                />
+              </a>
+            </div>
 
             {/* Cart */}
             <Link 

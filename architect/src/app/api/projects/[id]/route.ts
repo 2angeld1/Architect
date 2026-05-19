@@ -89,6 +89,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         floors: body.floors !== undefined ? Number(body.floors) : undefined,
         style: body.style,
         isActive: body.isActive !== undefined ? Boolean(body.isActive) : undefined,
+        isFeatured: body.isFeatured !== undefined ? Boolean(body.isFeatured) : undefined,
       },
     });
 

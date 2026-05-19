@@ -13,6 +13,7 @@ export type ProjectFormData = {
   style: string;
   description: string;
   images: string[];
+  isFeatured?: boolean;
 };
 
 interface UseProjectFormModalProps {
@@ -61,6 +62,7 @@ export const useProjectFormModal = ({
         floors: projectToEdit.floors || 1,
         style: projectToEdit.style || '',
         description: projectToEdit.description || '',
+        isFeatured: projectToEdit.isFeatured || false,
       });
       if (Array.isArray(projectToEdit.images) && projectToEdit.images.length > 0) {
         setImageUrl(projectToEdit.images[0]);
@@ -78,6 +80,7 @@ export const useProjectFormModal = ({
         floors: 1,
         style: '',
         description: '',
+        isFeatured: false,
       });
       setImageUrl(null);
     }

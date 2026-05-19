@@ -3,9 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Mail, Phone, MapPin, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
+import { useCMS } from '../../hooks/front/useCMS';
+import { EditableText } from '../ui/Editable';
 
 const Footer = () => {
   const pathname = usePathname();
+  const { content = {} } = useCMS('global');
+
   if (pathname.startsWith('/admin')) return null;
 
   return (
@@ -24,8 +28,13 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-secondary-400 leading-relaxed mb-6">
-              Más de 15 años diseñando espacios que inspiran.
-              Planos arquitectónicos de alta calidad listos para construir.
+              <EditableText
+                page="global"
+                section="footer"
+                keyName="description"
+                defaultValue={content['footer_description'] || 'Más de 15 años diseñando espacios que inspiran. Planos arquitectónicos de alta calidad listos para construir.'}
+                as="span"
+              />
             </p>
             {/* Social Links */}
             <div className="flex gap-3">
@@ -120,18 +129,42 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
-                <span>Av. Reforma 123, Col. Centro,<br />Ciudad de México, México</span>
+                <span className="text-left">
+                  <EditableText
+                    page="global"
+                    section="contact"
+                    keyName="address"
+                    defaultValue={content['contact_address'] || 'Av. Reforma 123, Col. Centro, Ciudad de México, México'}
+                    as="span"
+                  />
+                </span>
               </li>
               <li>
-                <a href="tel:+525512345678" className="flex items-center gap-3 hover:text-primary-400 transition-colors">
+                <a href={`tel:${content['contact_phone'] || '+52 55 1234 5678'}`} className="flex items-center gap-3 hover:text-primary-400 transition-colors">
                   <Phone className="w-5 h-5 text-primary-400" />
-                  <span>+52 55 1234 5678</span>
+                  <span>
+                    <EditableText
+                      page="global"
+                      section="contact"
+                      keyName="phone"
+                      defaultValue={content['contact_phone'] || '+52 55 1234 5678'}
+                      as="span"
+                    />
+                  </span>
                 </a>
               </li>
               <li>
-                <a href="mailto:contacto@archiquect.com" className="flex items-center gap-3 hover:text-primary-400 transition-colors">
+                <a href={`mailto:${content['contact_email'] || 'contacto@archiquect.com'}`} className="flex items-center gap-3 hover:text-primary-400 transition-colors">
                   <Mail className="w-5 h-5 text-primary-400" />
-                  <span>contacto@archiquect.com</span>
+                  <span>
+                    <EditableText
+                      page="global"
+                      section="contact"
+                      keyName="email"
+                      defaultValue={content['contact_email'] || 'contacto@archiquect.com'}
+                      as="span"
+                    />
+                  </span>
                 </a>
               </li>
             </ul>
