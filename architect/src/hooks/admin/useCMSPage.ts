@@ -11,7 +11,7 @@ export type PageContent = {
   type: 'text' | 'image' | 'richtext';
 };
 
-export const AVAILABLE_PAGES = ['global', 'home', 'nosotros', 'casas-ya-hechas', 'promociones'];
+export const AVAILABLE_PAGES = ['global', 'home', 'nosotros', 'casas-ya-hechas', 'promociones', 'construccion'];
 
 export const useCMSPage = () => {
   const queryClient = useQueryClient();

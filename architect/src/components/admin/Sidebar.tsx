@@ -17,7 +17,6 @@ const menuItems = [
   { icon: Images, label: 'Galería', href: '/admin/media' },
   { icon: CalendarDays, label: 'Cotizaciones', href: '/admin/reservations' },
   { icon: Users, label: 'Clientes', href: '/admin/clients' },
-  { icon: LayoutDashboard, label: 'Contenido (CMS)', href: '/admin/content' },
   { icon: Settings, label: 'Configuración', href: '/admin/settings' },
 ];
 
