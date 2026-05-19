@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏛️ Architect — Ecosistema Digital Full-Stack Premium
 
-## Getting Started
+¡Bienvenido al repositorio oficial de **Architect**! Este es un sistema web full-stack premium desarrollado con **Next.js** y **Prisma**, diseñado para ofrecer un catálogo interactivo de planos arquitectónicos, reservas de propiedades en tiempo real, gestión dinámica de contenidos (CMS) y testimonios verificados de clientes.
 
-First, run the development server:
+---
 
+## 🚀 Características del Ecosistema
+
+### 👑 Panel de Administración Completo (`/admin`)
+* **Gestión de Proyectos:** Carga y edición de planos, precios, áreas, habitaciones, baños, estilos arquitectónicos y carga de imágenes.
+* **Interruptor de Destacados:** Sistema con interruptor iOS-style premium que resalta proyectos en la portada principal (`isFeatured`).
+* **Testimonios Moderados:** Bandeja de aprobación en tiempo real para testimonios de clientes con filtros de estrellaje automático (4 y 5 estrellas).
+* **CMS e Información Dinámica:** Edición directa del número de contacto corporativo en mega menús y pie de página, además de la sección "Nosotros".
+* **Categorías Autogestionables:** Soporte inteligente que autoinicializa 6 categorías esenciales de diseño si la base de datos está en blanco.
+
+### 🏠 Experiencia del Cliente (Frontend)
+* Catálogo dinámico y filtrable por categorías y características técnicas.
+* Formulario abierto y simplificado para el envío de testimonios y valoraciones.
+* Sistema interactivo de visualización y cotización de propiedades.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+* **Framework:** [Next.js (App Router)](https://nextjs.org/) (React 19, NodeJS)
+* **Base de Datos:** PostgreSQL ([Neon.tech](https://neon.tech/) en producción / Docker en desarrollo local)
+* **ORM:** [Prisma Client](https://www.prisma.io/)
+* **Media Storage:** [Cloudinary](https://cloudinary.com/) (Almacenamiento y optimización de imágenes)
+* **Emails:** [Brevo SMTP](https://www.brevo.com/) (Envío de correos transaccionales)
+* **Estilos:** Tailwind CSS y Framer Motion para micro-animaciones premium.
+
+---
+
+## 💻 Desarrollo Local (Paso a Paso)
+
+### 1. Requisitos Previos
+Asegúrate de tener instalado:
+* **Node.js** (v18 o superior)
+* **Docker** (para la base de datos Postgres local)
+
+### 2. Configurar la Base de Datos Local con Docker
+Inicia tu contenedor de base de datos local corriendo:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker compose up -d
+```
+*(O utiliza tu base de datos de Postgres preferida en el puerto 5432).*
+
+### 3. Configurar las Variables de Entorno
+Crea o edita un archivo `.env` en la raíz del proyecto y define la cadena de conexión local:
+```env
+DATABASE_URL="postgresql://admin:password123@localhost:5432/architect_db?schema=public"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Crea o edita tu archivo `.env.local` para las integraciones de imágenes y correos:
+```env
+CLOUDINARY_CLOUD_NAME="tu-cloud-name"
+CLOUDINARY_API_KEY="tu-api-key"
+CLOUDINARY_API_SECRET="tu-api-secret"
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+SMTP_HOST="smtp-relay.brevo.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="tu-correo-brevo"
+SMTP_PASS="tu-clave-smtp"
+SMTP_FROM="tu-remitente-verificado"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+NEXT_PUBLIC_UNSPLASH_ACCESS_KEY="tu-unsplash-key"
+UNSPLASH_SECRET_KEY="tu-unsplash-secret"
+```
 
-## Learn More
+### 4. Inicializar Prisma y la Base de Datos
+Sincroniza el esquema de base de datos de Prisma y ejecuta el semillero de proyectos de muestra:
+```bash
+# Sincronizar tablas
+npx prisma db push
 
-To learn more about Next.js, take a look at the following resources:
+# Poblar base de datos con datos de muestra
+npx prisma db seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 5. Iniciar Servidor de Desarrollo
+```bash
+npm run dev
+```
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación funcionando.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛫 Despliegue en Producción (Vercel + Neon)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Este proyecto está optimizado al 100% para la infraestructura Serverless de **Vercel** y **Neon.tech**.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 1. Vincular la Base de Datos
+1. Ve a la sección **Integrations** en Vercel, selecciona **Neon** y haz clic en **Connect to Project**.
+2. Vincula tu base de datos con tu proyecto `architect`. Neon inyectará automáticamente la variable `DATABASE_URL` correspondiente de producción.
+
+### 2. Configurar Variables Adicionales en Vercel
+Copia el resto de las variables de tu archivo `.env.local` (Cloudinary, Brevo, Unsplash) en la sección **Settings -> Environment Variables** de tu proyecto en Vercel.
+
+### 3. Ajustar el Comando de Compilación en Vercel
+En **Settings -> Build & Development Settings -> Build Command**, activa la personalización y pon:
+```bash
+npx prisma generate && npx prisma db push && next build
+```
+
+---
+
+## 🔒 Registro del Administrador Inicial
+Para registrar la primera cuenta de administrador para iniciar sesión en `/admin`:
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@correo.com", "password":"tu-contrasena", "name":"Admin Principal"}'
+```
+
+---
+
+## 🏛️ ¡Todo listo para crear y diseñar el futuro! ✨
