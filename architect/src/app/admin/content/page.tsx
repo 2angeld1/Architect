@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { LayoutTemplate } from 'lucide-react';
 import { useCMSPage } from '@/hooks/admin/useCMSPage';
 import CMSHeader from '@/components/admin/content/CMSHeader';
@@ -9,6 +10,7 @@ import CMSCard from '@/components/admin/content/CMSCard';
 import CMSDeleteModal from '@/components/admin/content/CMSDeleteModal';
 import CMSAlertModal from '@/components/admin/content/CMSAlertModal';
 import CMSEditDrawer from '@/components/admin/content/CMSEditDrawer';
+import CMSGuideModal from '@/components/admin/content/CMSGuideModal';
 
 export default function CMSPage() {
   const {
@@ -31,6 +33,7 @@ export default function CMSPage() {
     handleCreateNew,
     handleDelete,
   } = useCMSPage();
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   return (
     <div className="space-y-6 font-sans">
@@ -39,6 +42,7 @@ export default function CMSPage() {
       <CMSHeader
         isAddingNew={isAddingNew}
         setIsAddingNew={setIsAddingNew}
+        onInfoClick={() => setIsGuideOpen(true)}
       />
 
       {/* Modular CMS Tabs */}
@@ -113,6 +117,12 @@ export default function CMSPage() {
         setEditModal={setEditModal}
         isSaving={isSaving}
         handleSaveChanges={handleSaveChanges}
+      />
+
+      {/* Master Guide Modal */}
+      <CMSGuideModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
       />
 
     </div>
