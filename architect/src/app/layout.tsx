@@ -3,6 +3,7 @@ import { Inter, Outfit } from "next/font/google";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import { Toaster } from "react-hot-toast";
+import Providers from "./providers";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,25 +34,27 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${outfit.variable} antialiased`}
       >
-        <Toaster 
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#09090b',
-              color: '#f4f4f5',
-              border: '1px solid #27272a',
-              borderRadius: '1rem',
-              fontSize: '0.875rem',
-              fontFamily: 'var(--font-inter), sans-serif',
-            },
-          }}
-        />
-        <Header />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
+        <Providers>
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#09090b',
+                color: '#f4f4f5',
+                border: '1px solid #27272a',
+                borderRadius: '1rem',
+                fontSize: '0.875rem',
+                fontFamily: 'var(--font-inter), sans-serif',
+              },
+            }}
+          />
+          <Header />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

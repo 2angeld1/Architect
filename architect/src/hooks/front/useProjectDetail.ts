@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
-import { mockProjects } from '../mocks/projects';
-import { useCheckoutStore } from '../store/checkoutStore';
-import { searchPhotos } from '../services/unsplash';
-import type { Project } from '../types';
+import { useState, useCallback, useMemo } from 'react';
+import { mockProjects } from '../../mocks/projects';
+import { useCheckoutStore } from '../../store/checkoutStore';
+import { searchPhotos } from '../../services/unsplash';
+import type { Project } from '../../types';
 
 export const useProjectDetail = () => {
   const params = useParams();
@@ -11,27 +12,23 @@ export const useProjectDetail = () => {
   const router = useRouter();
   const { selectProject, setReservationType } = useCheckoutStore();
   
-  const [project, setProject] = useState<Project | undefined>(mockProjects.find(p => p.id === id));
-  const [projectImages, setProjectImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'overview' | 'features' | 'plans'>('overview');
 
-  useEffect(() => {
-    const found = mockProjects.find(p => p.id === id);
-    if (found) {
-      setProject(found);
-      searchPhotos('modern luxury house architecture', 10).then(photos => {
-        if (photos.length > 0) {
-          setProjectImages(photos.map(p => `${p.urls.regular}`));
-        }
-      });
-    } else if (id) {
-       // Only redirect if id is present but not found (prevent redirect on initial render if id not ready)
-       // Actually in Next.js useParams is usually ready immediately or stubbed.
-       // But strictly speaking, if not found, redirect.
-       // router.push('/proyectos');
-    }
-  }, [id, router]);
+  const project = useMemo(() => {
+    return mockProjects.find(p => p.id === id);
+  }, [id]);
+
+  // Fetch Unsplash photos for gallery using React Query
+  const { data: projectImages = [], isLoading } = useQuery<string[]>({
+    queryKey: ['project-detail-photos', id],
+    queryFn: async () => {
+      if (!project) return [];
+      const photos = await searchPhotos('modern luxury house architecture', 10);
+      return photos.map(p => `${p.urls.regular}`);
+    },
+    enabled: !!project,
+  });
 
   const nextImage = useCallback(() => {
     if (projectImages.length === 0) return;
@@ -77,6 +74,7 @@ export const useProjectDetail = () => {
     prevImage,
     handleBuyPlan,
     handleRequestQuote,
-    formatPrice
+    formatPrice,
+    isLoading
   };
 };

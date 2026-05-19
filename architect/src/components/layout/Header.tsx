@@ -7,8 +7,8 @@ import { Menu, X, ShoppingCart, Phone, Home } from 'lucide-react';
 import { useCheckoutStore } from '../../store/checkoutStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import MegaMenu from './MegaMenu';
-import { useLayout } from '../../hooks/useLayout';
-import { useCMS } from '../../hooks/useCMS';
+import { useLayout } from '../../hooks/front/useLayout';
+import { useCMS } from '../../hooks/front/useCMS';
 
 interface HeaderProps {}
 

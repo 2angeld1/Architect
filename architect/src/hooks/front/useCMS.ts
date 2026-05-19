@@ -1,26 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 export function useCMS(pageName: string) {
-  const [content, setContent] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const { data = {}, isLoading } = useQuery<Record<string, string>>({
+    queryKey: ['cms', pageName],
+    queryFn: async () => {
+      const res = await fetch(`/api/cms?page=${pageName}`);
+      const json = await res.json();
+      if (!json.success) throw new Error('CMS load failed');
+      return json.formatted || {};
+    },
+  });
 
   useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const res = await fetch(`/api/cms?page=${pageName}`);
-        const json = await res.json();
-        if (json.success) {
-          setContent(json.formatted);
-        }
-      } catch (error) {
-        console.error('Error fetching CMS:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchContent();
-
     // Establish Server-Sent Events real-time listener
     const eventSource = new EventSource(`/api/cms/events?page=${pageName}`);
 
@@ -29,7 +23,7 @@ export function useCMS(pageName: string) {
         const data = JSON.parse(event.data);
         if (data.type === 'update') {
           console.log(`[Realtime CMS] Update event received for page: ${data.page}`);
-          fetchContent();
+          queryClient.invalidateQueries({ queryKey: ['cms', pageName] });
         }
       } catch (err) {
         console.error('Failed to parse SSE data', err);
@@ -43,7 +37,7 @@ export function useCMS(pageName: string) {
     return () => {
       eventSource.close();
     };
-  }, [pageName]);
+  }, [pageName, queryClient]);
 
-  return { content, isLoading };
+  return { content: data, isLoading };
 }

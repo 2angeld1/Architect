@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useCheckoutStore } from '../store/checkoutStore';
-import { mockProjects } from '../mocks/projects';
-import { searchPhotos } from '../services/unsplash';
-import type { Project } from '../types';
+import { useQuery } from '@tanstack/react-query';
+import { useCheckoutStore } from '../../store/checkoutStore';
+import { mockProjects } from '../../mocks/projects';
+import { searchPhotos } from '../../services/unsplash';
+import type { Project } from '../../types';
 
 export const useProjectSelection = () => {
   const { 
@@ -12,10 +12,9 @@ export const useProjectSelection = () => {
     nextStep,
   } = useCheckoutStore();
 
-  const [projectImages, setProjectImages] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const fetchImages = async () => {
+  const { data: projectImages = {}, isLoading } = useQuery<Record<string, string>>({
+    queryKey: ['checkout-project-selection-images'],
+    queryFn: async () => {
       const photos = await searchPhotos('modern house architecture', 12);
       const imageMap: Record<string, string> = {};
       mockProjects.forEach((project, index) => {
@@ -23,10 +22,9 @@ export const useProjectSelection = () => {
           imageMap[project.id] = `${photos[index % photos.length].urls.raw}&w=400&q=80&fit=crop`;
         }
       });
-      setProjectImages(imageMap);
-    };
-    fetchImages();
-  }, []);
+      return imageMap;
+    },
+  });
 
   const handleSelectProject = (project: Project) => {
     selectProject(project);
@@ -51,6 +49,7 @@ export const useProjectSelection = () => {
     projectImages,
     handleSelectProject,
     handleContinue,
-    formatPrice
+    formatPrice,
+    isLoading
   };
 };

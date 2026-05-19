@@ -6,7 +6,7 @@ import { ArrowUpRight, ArrowDownRight, Activity, CalendarDays, FolderKanban } fr
 const stats = [
   { title: 'Proyectos Activos', value: '12', change: '+2', trend: 'up', icon: FolderKanban },
   { title: 'Ingresos (Mes)', value: '$45,200', change: '+12.5%', trend: 'up', icon: Activity },
-  { title: 'Nuevas Reservas', value: '8', change: '-1', trend: 'down', icon: CalendarDays },
+  { title: 'Nuevas Cotizaciones', value: '8', change: '-1', trend: 'down', icon: CalendarDays },
 ];
 
 export default function AdminDashboard() {
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
               <div key={i} className="flex gap-4 items-start">
                 <div className="w-2 h-2 mt-2 rounded-full bg-zinc-700" />
                 <div>
-                  <p className="text-sm text-zinc-300">Reserva #RES-X92 confirmada</p>
+                  <p className="text-sm text-zinc-300">Cotización #RES-X92 confirmada</p>
                   <p className="text-xs text-zinc-500">Hace {i * 2} horas</p>
                 </div>
               </div>

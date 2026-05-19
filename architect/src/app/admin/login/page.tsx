@@ -1,52 +1,27 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Hexagon, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useLogin } from '@/hooks/admin/useLogin';
+import { slideUp, scaleUp } from '@/animations/variants';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Algo salió mal. Por favor intenta de nuevo.');
-      }
-
-      setSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
-      setTimeout(() => {
-        window.location.href = '/admin';
-      }, 1000);
-    } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión');
-      setLoading(false);
-    }
-  };
+  const { email, setEmail, password, setPassword, showPassword, setShowPassword, loading, error, success, handleSubmit, } = useLogin();
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-zinc-950 to-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-zinc-800 selection:text-white">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+
+      {/* Brand Header */}
+      <motion.div
+        variants={slideUp}
+        initial="hidden"
+        animate="visible"
+        className="sm:mx-auto sm:w-full sm:max-w-md text-center"
+      >
         {/* Brand Logo */}
         <div className="mx-auto w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-2xl shadow-white/10 mb-6 border border-zinc-200/10">
-          <Hexagon className="w-6 h-6 text-zinc-950 fill-zinc-950 animate-pulse" />
+          <Hexagon className="w-6 h-6 text-zinc-955 fill-zinc-955 animate-pulse" />
         </div>
         <h2 className="text-3xl font-extralight tracking-widest text-zinc-100 uppercase">
           ARCHI<span className="font-bold">TECT</span>
@@ -54,13 +29,19 @@ export default function LoginPage() {
         <p className="mt-2 text-sm text-zinc-500 uppercase tracking-widest">
           Portal de Administración
         </p>
-      </div>
+      </motion.div>
 
+      {/* Form Container */}
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         {/* Glassmorphic Form Card */}
-        <div className="bg-zinc-950/40 backdrop-blur-2xl border border-zinc-900/80 shadow-2xl shadow-black/80 rounded-2xl px-6 py-8 sm:px-10">
+        <motion.div
+          variants={scaleUp}
+          initial="hidden"
+          animate="visible"
+          className="bg-zinc-950/40 backdrop-blur-2xl border border-zinc-900/80 shadow-2xl shadow-black/80 rounded-2xl px-6 py-8 sm:px-10"
+        >
           <h3 className="text-xl font-light text-zinc-100 mb-6">Iniciar Sesión</h3>
-          
+
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400 font-medium">
               {error}
@@ -140,11 +121,11 @@ export default function LoginPage() {
               className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-transparent text-sm font-semibold text-zinc-950 bg-white hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-white/5 active:scale-[0.98]"
             >
               {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+                <Loader2 className="w-4 h-4 animate-spin text-zinc-955" />
               ) : (
                 <>
                   <span>Ingresar al Panel</span>
-                  <ArrowRight className="w-4 h-4 text-zinc-950" />
+                  <ArrowRight className="w-4 h-4 text-zinc-955" />
                 </>
               )}
             </button>
@@ -160,7 +141,7 @@ export default function LoginPage() {
               Regístrate aquí
             </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { useCategories } from '../../hooks/useCategories';
+import { useCategories } from '../../hooks/front/useCategories';
 import CategoryCard from '../ui/CategoryCard';
 
 const Categories = () => {

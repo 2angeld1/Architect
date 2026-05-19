@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useCheckoutStore } from '../store/checkoutStore';
-import type { PaymentInfo } from '../types';
+import { useCheckoutStore } from '../../store/checkoutStore';
+import type { PaymentInfo } from '../../types';
 
 export const usePaymentInfo = () => {
   const { paymentInfo, setPaymentInfo, nextStep, prevStep, reservationType } = useCheckoutStore();

@@ -1,81 +1,18 @@
 'use client';
-
-import { useState, useEffect, useRef } from 'react';
 import { Bell, Search, User, Settings, LogOut } from 'lucide-react';
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-
-interface UserSession {
-  id: string;
-  email: string;
-  name: string | null;
-}
+import { useTopNav } from '../../hooks/admin/useTopNav';
 
 export default function TopNav() {
-  const pathname = usePathname();
-  const [user, setUser] = useState<UserSession | null>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Fetch logged-in user details on mount
-  useEffect(() => {
-    async function fetchMe() {
-      try {
-        const res = await fetch('/api/auth/me');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.authenticated) {
-            setUser(data.user);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user session:', error);
-      }
-    }
-    fetchMe();
-  }, []);
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Format the title based on route
-  const getTitle = () => {
-    if (pathname === '/admin') return 'Resumen General';
-    if (pathname.includes('/projects')) return 'Gestión de Proyectos';
-    if (pathname.includes('/reservations')) return 'Reservas y Pagos';
-    if (pathname.includes('/clients')) return 'Directorio de Clientes';
-    if (pathname.includes('/settings')) return 'Configuración';
-    return 'Panel de Administración';
-  };
-
-  // Get initials from user name
-  const getInitials = () => {
-    if (!user || !user.name) return 'AD';
-    const parts = user.name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return parts[0].substring(0, 2).toUpperCase();
-  };
-
-  const handleLogout = async () => {
-    try {
-      const res = await fetch('/api/auth/logout', { method: 'POST' });
-      if (res.ok) {
-        window.location.href = '/admin/login';
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
+  const {
+    user,
+    isDropdownOpen,
+    setIsDropdownOpen,
+    dropdownRef,
+    getTitle,
+    getInitials,
+    handleLogout,
+  } = useTopNav();
 
   return (
     <header className="h-24 w-full bg-zinc-950/40 backdrop-blur-md border-b border-zinc-900 flex items-center justify-between px-10 sticky top-0 z-40">

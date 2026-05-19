@@ -18,7 +18,7 @@ import {
   Maximize2
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useProjectDetail } from '../../../hooks/useProjectDetail';
+import { useProjectDetail } from '../../../hooks/front/useProjectDetail';
 import Reveal from '../../../components/ui/Reveal';
 import { fadeIn, slideUp } from '../../../animations/variants';
 

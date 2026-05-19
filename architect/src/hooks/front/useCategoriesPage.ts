@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { searchPhotos } from '../services/unsplash';
-import { getCategoryIcon } from '../lib/iconHelper';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo } from 'react';
+import { searchPhotos } from '../../services/unsplash';
+import { Category } from '../../types';
+import { getCategoryIcon } from '../../lib/iconHelper';
 
 // Fallback hardcoded categories in case DB is not populated yet
 const defaultCategories = [
@@ -88,73 +89,78 @@ const defaultCategories = [
   },
 ];
 
-export const useCategoryDetail = () => {
-  const params = useParams();
-  const id = params?.id as string;
-  const [category, setCategory] = useState<any>(null);
-  const [categoryImages, setCategoryImages] = useState<string[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
+export const useCategoriesPage = () => {
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchCategoryAndProjects = async () => {
+  // Query global CMS config using React Query (shared cache!)
+  const { data: cmsGlobal = {} } = useQuery<Record<string, string>>({
+    queryKey: ['cms', 'global'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms?page=global');
+      const json = await res.json();
+      if (!json.success) throw new Error('CMS load failed');
+      return json.formatted || {};
+    },
+  });
+
+  const rawCategories = useMemo(() => {
+    if (cmsGlobal.categories_list) {
       try {
-        // Fetch public projects
-        const projectsRes = await fetch('/api/projects');
-        const projectsJson = await projectsRes.json();
-        const allProjects = projectsJson.success ? projectsJson.data : [];
+        return JSON.parse(cmsGlobal.categories_list);
+      } catch (e) {
+        console.error('Failed to parse categories_list JSON:', e);
+      }
+    }
+    return defaultCategories;
+  }, [cmsGlobal]);
 
-        // Fetch categories list from CMS
-        const res = await fetch('/api/cms?page=global');
-        const json = await res.json();
-        
-        let rawCategories = defaultCategories;
-        if (json.success && json.formatted && json.formatted.categories_list) {
-          try {
-            rawCategories = JSON.parse(json.formatted.categories_list);
-          } catch (e) {
-            console.error('Failed to parse categories_list JSON:', e);
-          }
-        }
-
-        // Find match by string or number comparison
-        const found = rawCategories.find(
-          (c: any) => String(c.id) === String(id) || String(c.name).toLowerCase() === String(id).toLowerCase()
-        );
-
-        if (found) {
-          const mappedCategory = {
-            ...found,
-            icon: getCategoryIcon(found.iconName || 'Home')
+  // Query and combine categories and images
+  const { data: categories = [], isLoading } = useQuery<Category[]>({
+    queryKey: ['processed-categories-page', rawCategories.map((c: any) => c.name).join(',')],
+    queryFn: async () => {
+      const updated = await Promise.all(
+        rawCategories.map(async (category: any) => {
+          const photos = await searchPhotos(category.query || category.name, 1);
+          return {
+            ...category,
+            icon: getCategoryIcon(category.iconName || 'Home'),
+            image: photos.length > 0 
+              ? `${photos[0].urls.raw}&w=800&q=85&fit=crop` 
+              : '',
           };
-          setCategory(mappedCategory);
+        })
+      );
+      return updated as Category[];
+    },
+    enabled: rawCategories.length > 0,
+  });
 
-          // Filter real dynamic projects instead of mock list!
-          const matched = allProjects.filter((p: any) => 
-            p.category.toLowerCase().includes(found.name.toLowerCase()) || 
-            (found.subcategories && found.subcategories.some((sub: string) => p.category.toLowerCase().includes(sub.toLowerCase())))
-          );
-          setFilteredProjects(matched.length > 0 ? matched : allProjects.slice(0, 3));
+  // Listen to real-time events to auto-refresh
+  useEffect(() => {
+    const eventSource = new EventSource('/api/cms/events?page=global');
 
-          // Fetch Unsplash photos for background/gallery
-          const photos = await searchPhotos(found.query || found.name, 5);
-          if (photos.length > 0) {
-            setCategoryImages(photos.map(p => p.urls.regular));
-          }
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'update') {
+          console.log('[Realtime Categories Page] Updating categories list in real-time...');
+          queryClient.invalidateQueries({ queryKey: ['cms', 'global'] });
         }
       } catch (err) {
-        console.error('Error in useCategoryDetail:', err);
+        console.error('Failed to parse SSE data for categories', err);
       }
     };
 
-    if (id) {
-      fetchCategoryAndProjects();
-    }
-  }, [id]);
+    return () => {
+      eventSource.close();
+    };
+  }, [queryClient]);
+
+  const totalProjects = categories.reduce((sum, cat) => sum + (cat.count || 0), 0);
 
   return {
-    category,
-    categoryImages,
-    filteredProjects,
-    id
+    categories,
+    isLoading,
+    totalProjects
   };
 };

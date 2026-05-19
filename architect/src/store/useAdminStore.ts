@@ -13,10 +13,29 @@ export type Project = {
 export type Reservation = {
   id: string;
   reservationNumber: string;
-  project: { name: string };
-  buyer: { firstName: string; lastName: string };
+  project: { 
+    name: string; 
+    category?: string; 
+    area?: number; 
+    style?: string; 
+    floors?: number;
+  };
+  buyer: { 
+    firstName: string; 
+    lastName: string;
+    documentType?: string;
+    documentNumber?: string;
+    email?: string;
+    phone?: string;
+  };
   status: 'pending' | 'processing' | 'confirmed' | 'cancelled' | 'completed';
   totalAmount: number;
+  currency?: string;
+  type?: string;
+  paymentInfo?: {
+    paymentMethod?: string;
+  };
+  notes?: string;
   createdAt: string;
 };
 

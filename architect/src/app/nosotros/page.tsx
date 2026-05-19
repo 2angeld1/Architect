@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Users, ArrowRight, CheckCircle2, Play, MapPin, Phone, Mail } from 'lucide-react';
 import { aboutStats, aboutValues, aboutTeam } from '../../data/about';
-import { useAboutPage } from '../../hooks/useAboutPage';
+import { useAboutPage } from '../../hooks/front/useAboutPage';
 import Reveal from '../../components/ui/Reveal';
 import { slideUp, fadeIn, slideInFromLeft, slideInFromRight } from '../../animations/variants';
 

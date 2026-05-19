@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { searchPhotos, type UnsplashPhoto } from '../services/unsplash';
-import { heroSlideContent } from '../data/home';
+import { useQuery } from '@tanstack/react-query';
+import { useState, useCallback, useEffect } from 'react';
+import { searchPhotos, type UnsplashPhoto } from '../../services/unsplash';
+import { heroSlideContent } from '../../data/home';
 
 export interface HeroSlide {
   image: string;
@@ -33,34 +34,27 @@ const fallbackSlides: HeroSlide[] = [
 export const useHeroCarousel = (autoInterval = 6000) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchImages = async () => {
+  const { data: slides = fallbackSlides, isLoading } = useQuery<HeroSlide[]>({
+    queryKey: ['hero-carousel-slides'],
+    queryFn: async () => {
       try {
         const photos = await searchPhotos('modern house architecture', 3);
         if (photos && photos.length > 0) {
-          const newSlides = photos.map((photo: UnsplashPhoto, index: number) => ({
+          return photos.map((photo: UnsplashPhoto, index: number) => ({
             image: `${photo.urls.raw}&w=1920&q=80&fit=crop`,
             title: heroSlideContent[index % heroSlideContent.length].title,
             subtitle: heroSlideContent[index % heroSlideContent.length].subtitle,
             credit: photo.user.name,
           }));
-          setSlides(newSlides);
-        } else {
-          // Usar slides de respaldo si Unsplash no devuelve fotos (ej. falta API key)
-          setSlides(fallbackSlides);
         }
+        return fallbackSlides;
       } catch (error) {
         console.error('Error loading images from Unsplash, loading fallbacks:', error);
-        setSlides(fallbackSlides);
-      } finally {
-        setIsLoading(false);
+        return fallbackSlides;
       }
-    };
-    fetchImages();
-  }, []);
+    },
+  });
 
   const nextSlide = useCallback(() => {
     if (isTransitioning || slides.length === 0) return;

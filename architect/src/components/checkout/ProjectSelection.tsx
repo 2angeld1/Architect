@@ -1,6 +1,6 @@
 import { Home, Ruler, Bath, Building2, Check, Sparkles, ArrowRight } from 'lucide-react';
 import { mockProjects } from '../../mocks/projects';
-import { useProjectSelection } from '../../hooks/useProjectSelection';
+import { useProjectSelection } from '../../hooks/front/useProjectSelection';
 import Reveal from '../ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 

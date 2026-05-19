@@ -1,164 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { 
-  Compass, 
-  Loader2, 
-  Check, 
-  AlertCircle,
-  Plus,
-  Trash2,
-  Send,
-  ArrowUp,
-  ArrowDown,
-  ExternalLink,
-  Info
-} from 'lucide-react';
-
-interface MenuLink {
-  name: string;
-  path: string;
-  isHighlight?: boolean;
-}
+import { Compass, Loader2, Check, AlertCircle, Plus, Trash2, Send, ArrowUp, ArrowDown, Info } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useMenusPage } from '@/hooks/admin/useMenusPage';
+import { staggerRowVariants } from '@/animations/variants';
 
 export default function MenusPage() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  // Estados de enlaces primarios y secundarios
-  const [primaryLinks, setPrimaryLinks] = useState<MenuLink[]>([]);
-  const [secondaryLinks, setSecondaryLinks] = useState<MenuLink[]>([]);
-
-  // Inputs para agregar enlaces
-  const [newPrimaryName, setNewPrimaryName] = useState('');
-  const [newPrimaryPath, setNewPrimaryPath] = useState('');
-  
-  const [newSecondaryName, setNewSecondaryName] = useState('');
-  const [newSecondaryPath, setNewSecondaryPath] = useState('');
-  const [newSecondaryHighlight, setNewSecondaryHighlight] = useState(false);
-
-  useEffect(() => {
-    fetchMenus();
-  }, []);
-
-  const fetchMenus = async () => {
-    try {
-      const response = await fetch('/api/admin/menus');
-      const data = await response.json();
-      if (response.ok) {
-        setPrimaryLinks(data.menuPrimary || []);
-        setSecondaryLinks(data.menuSecondary || []);
-      } else {
-        setError(data.error || 'Error al cargar los menús de navegación');
-      }
-    } catch (err) {
-      console.error('Error fetching menus:', err);
-      setError('Error de red al cargar menús');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handlers para menú primario
-  const handleAddPrimary = () => {
-    if (!newPrimaryName.trim() || !newPrimaryPath.trim()) return;
-    setPrimaryLinks([...primaryLinks, { name: newPrimaryName.trim(), path: newPrimaryPath.trim() }]);
-    setNewPrimaryName('');
-    setNewPrimaryPath('');
-  };
-
-  const handleDeletePrimary = (index: number) => {
-    setPrimaryLinks(primaryLinks.filter((_, i) => i !== index));
-  };
-
-  const movePrimaryUp = (index: number) => {
-    if (index === 0) return;
-    const updated = [...primaryLinks];
-    const temp = updated[index];
-    updated[index] = updated[index - 1];
-    updated[index - 1] = temp;
-    setPrimaryLinks(updated);
-  };
-
-  const movePrimaryDown = (index: number) => {
-    if (index === primaryLinks.length - 1) return;
-    const updated = [...primaryLinks];
-    const temp = updated[index];
-    updated[index] = updated[index + 1];
-    updated[index + 1] = temp;
-    setPrimaryLinks(updated);
-  };
-
-  // Handlers para menú secundario
-  const handleAddSecondary = () => {
-    if (!newSecondaryName.trim() || !newSecondaryPath.trim()) return;
-    setSecondaryLinks([
-      ...secondaryLinks, 
-      { 
-        name: newSecondaryName.trim(), 
-        path: newSecondaryPath.trim(), 
-        isHighlight: newSecondaryHighlight 
-      }
-    ]);
-    setNewSecondaryName('');
-    setNewSecondaryPath('');
-    setNewSecondaryHighlight(false);
-  };
-
-  const handleDeleteSecondary = (index: number) => {
-    setSecondaryLinks(secondaryLinks.filter((_, i) => i !== index));
-  };
-
-  const moveSecondaryUp = (index: number) => {
-    if (index === 0) return;
-    const updated = [...secondaryLinks];
-    const temp = updated[index];
-    updated[index] = updated[index - 1];
-    updated[index - 1] = temp;
-    setSecondaryLinks(updated);
-  };
-
-  const moveSecondaryDown = (index: number) => {
-    if (index === secondaryLinks.length - 1) return;
-    const updated = [...secondaryLinks];
-    const temp = updated[index];
-    updated[index] = updated[index + 1];
-    updated[index + 1] = temp;
-    setSecondaryLinks(updated);
-  };
-
-  const handleSaveChanges = async () => {
-    setSaving(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const response = await fetch('/api/admin/menus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ primaryLinks, secondaryLinks }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Ocurrió un error al guardar los menús de navegación.');
-      }
-
-      setSuccess('¡Menús de navegación actualizados y guardados con éxito!');
-      setTimeout(() => setSuccess(''), 5000);
-    } catch (err: any) {
-      setError(err.message || 'Error al guardar los cambios.');
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    loading, saving, error, success, primaryLinks, secondaryLinks,
+    newPrimaryName, setNewPrimaryName, newPrimaryPath, setNewPrimaryPath,
+    newSecondaryName, setNewSecondaryName, newSecondaryPath, setNewSecondaryPath,
+    newSecondaryHighlight, setNewSecondaryHighlight,
+    handleAddPrimary, handleDeletePrimary, movePrimaryUp, movePrimaryDown,
+    handleAddSecondary, handleDeleteSecondary, moveSecondaryUp, moveSecondaryDown,
+    handleSaveChanges,
+  } = useMenusPage();
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4 font-sans">
         <Loader2 className="w-8 h-8 animate-spin text-white" />
         <p className="text-zinc-500 text-xs tracking-wider uppercase font-semibold">Cargando Menús de Navegación...</p>
       </div>
@@ -166,8 +26,8 @@ export default function MenusPage() {
   }
 
   return (
-    <div className="space-y-8 pb-12 font-sans">
-      
+    <div className="space-y-8 pb-12 font-sans text-zinc-300">
+
       {/* Header with action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-900 pb-5">
         <div className="space-y-1">
@@ -183,13 +43,13 @@ export default function MenusPage() {
         <button
           onClick={handleSaveChanges}
           disabled={saving}
-          className="flex justify-center items-center gap-2 py-2.5 px-6 rounded-xl text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5"
+          className="flex justify-center items-center gap-2 py-2.5 px-6 rounded-xl text-xs font-semibold text-zinc-955 bg-white hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5"
         >
           {saving ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-950" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-955" />
           ) : (
             <>
-              <Send className="w-3.5 h-3.5 text-zinc-950" />
+              <Send className="w-3.5 h-3.5 text-zinc-955" />
               <span>Guardar Cambios</span>
             </>
           )}
@@ -224,7 +84,7 @@ export default function MenusPage() {
 
       {/* Grid containing two menus */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+
         {/* Left Column: Primary Menu */}
         <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 md:p-8 space-y-6">
           <div className="border-b border-zinc-900 pb-3">
@@ -235,9 +95,13 @@ export default function MenusPage() {
           {/* Active Links list */}
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
             {primaryLinks.map((link, idx) => (
-              <div 
-                key={idx} 
-                className="flex items-center justify-between gap-3 p-3 bg-zinc-900/30 border border-zinc-900 rounded-xl hover:border-zinc-800 transition-colors"
+              <motion.div
+                variants={staggerRowVariants}
+                initial="hidden"
+                animate="visible"
+                custom={idx}
+                key={link.name + idx}
+                className="flex items-center justify-between gap-3 p-3 bg-zinc-905/30 border border-zinc-900 rounded-xl hover:border-zinc-800 transition-colors"
               >
                 <div className="text-xs space-y-0.5">
                   <div className="flex items-center gap-2">
@@ -278,7 +142,7 @@ export default function MenusPage() {
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             ))}
 
             {primaryLinks.length === 0 && (
@@ -288,7 +152,7 @@ export default function MenusPage() {
 
           {/* Builder Form */}
           <div className="p-4 bg-zinc-900/10 border border-zinc-900/60 rounded-xl space-y-4 pt-5">
-            <div className="text-xs font-semibold text-zinc-300 border-b border-zinc-900 pb-1.5">Agregar Nuevo Enlace Primario</div>
+            <div className="text-xs font-semibold text-zinc-305 border-b border-zinc-900 pb-1.5">Agregar Nuevo Enlace Primario</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="block text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Nombre Visible</label>
@@ -315,7 +179,7 @@ export default function MenusPage() {
               type="button"
               onClick={handleAddPrimary}
               disabled={!newPrimaryName || !newPrimaryPath}
-              className="w-full py-2.5 px-3 bg-white text-zinc-950 hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.99]"
+              className="w-full py-2.5 px-3 bg-white text-zinc-955 hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.99]"
             >
               <Plus className="w-4 h-4" />
               <span>Añadir al Menú</span>
@@ -333,9 +197,13 @@ export default function MenusPage() {
           {/* Active Links list */}
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
             {secondaryLinks.map((link, idx) => (
-              <div 
-                key={idx} 
-                className="flex items-center justify-between gap-3 p-3 bg-zinc-900/30 border border-zinc-900 rounded-xl hover:border-zinc-800 transition-colors"
+              <motion.div
+                variants={staggerRowVariants}
+                initial="hidden"
+                animate="visible"
+                custom={idx}
+                key={link.name + idx}
+                className="flex items-center justify-between gap-3 p-3 bg-zinc-905/30 border border-zinc-900 rounded-xl hover:border-zinc-800 transition-colors"
               >
                 <div className="text-xs space-y-1">
                   <div className="flex items-center gap-2">
@@ -381,7 +249,7 @@ export default function MenusPage() {
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             ))}
 
             {secondaryLinks.length === 0 && (
@@ -391,7 +259,7 @@ export default function MenusPage() {
 
           {/* Builder Form */}
           <div className="p-4 bg-zinc-900/10 border border-zinc-900/60 rounded-xl space-y-4 pt-5">
-            <div className="text-xs font-semibold text-zinc-300 border-b border-zinc-900 pb-1.5">Agregar Nuevo Acceso al Catálogo</div>
+            <div className="text-xs font-semibold text-zinc-305 border-b border-zinc-900 pb-1.5">Agregar Nuevo Acceso al Catálogo</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="block text-[9px] text-zinc-500 uppercase tracking-wider font-semibold">Nombre Visible</label>
@@ -432,7 +300,7 @@ export default function MenusPage() {
               type="button"
               onClick={handleAddSecondary}
               disabled={!newSecondaryName || !newSecondaryPath}
-              className="w-full py-2.5 px-3 bg-white text-zinc-950 hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.99]"
+              className="w-full py-2.5 px-3 bg-white text-zinc-955 hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.99]"
             >
               <Plus className="w-4 h-4" />
               <span>Añadir al Catálogo</span>

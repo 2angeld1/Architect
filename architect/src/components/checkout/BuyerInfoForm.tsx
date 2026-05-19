@@ -1,5 +1,5 @@
 import { User, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useBuyerInfo } from '../../hooks/useBuyerInfo';
+import { useBuyerInfo } from '../../hooks/front/useBuyerInfo';
 import Reveal from '../ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 import FormInput from '../ui/FormInput';

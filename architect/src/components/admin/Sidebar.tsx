@@ -2,18 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
-  CalendarDays, 
-  Users, 
-  Settings,
-  LogOut,
-  Hexagon,
-  Globe,
-  FolderOpen,
-  Compass,
-  Images
+import {
+  LayoutDashboard, FolderKanban, CalendarDays,
+  Users, Settings, LogOut, Hexagon,
+  Globe, FolderOpen, Compass, Images
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -23,7 +15,7 @@ const menuItems = [
   { icon: FolderOpen, label: 'Categorías', href: '/admin/categories' },
   { icon: Compass, label: 'Navegación', href: '/admin/menus' },
   { icon: Images, label: 'Galería', href: '/admin/media' },
-  { icon: CalendarDays, label: 'Reservas', href: '/admin/reservations' },
+  { icon: CalendarDays, label: 'Cotizaciones', href: '/admin/reservations' },
   { icon: Users, label: 'Clientes', href: '/admin/clients' },
   { icon: LayoutDashboard, label: 'Contenido (CMS)', href: '/admin/content' },
   { icon: Settings, label: 'Configuración', href: '/admin/settings' },
@@ -54,20 +46,20 @@ export default function Sidebar() {
         <nav className="space-y-1.5">
           {menuItems.map((item) => {
             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/admin');
-            
+
             return (
               <Link key={item.href} href={item.href} className="block">
                 <div className={clsx(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative font-medium text-sm",
-                  isActive 
-                    ? "bg-zinc-900 text-white border border-zinc-800" 
+                  isActive
+                    ? "bg-zinc-900 text-white border border-zinc-800"
                     : "text-zinc-400 hover:bg-zinc-900/40 hover:text-zinc-200"
                 )}>
                   {/* Elegant left indicator bar */}
                   {isActive && (
                     <div className="absolute left-0 top-3 bottom-3 w-1 bg-white rounded-r-full" />
                   )}
-                  
+
                   <item.icon className={clsx(
                     "w-4 h-4 shrink-0 transition-transform duration-200",
                     isActive ? "text-white" : "text-zinc-500 group-hover:text-zinc-300 group-hover:scale-105"

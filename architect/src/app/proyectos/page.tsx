@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Search, SlidersHorizontal, Building2, Grid3X3, List, X, ChevronDown } from 'lucide-react';
 import { mockProjects } from '../../mocks/projects';
-import { useProjects } from '../../hooks/useProjects';
+import { useProjects } from '../../hooks/front/useProjects';
 import type { Project } from '../../types';
 import Reveal from '../../components/ui/Reveal';
 import { slideUp, fadeIn } from '../../animations/variants';

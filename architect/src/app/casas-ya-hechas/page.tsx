@@ -1,11 +1,11 @@
 'use client';
 
 import { Home } from 'lucide-react';
-import { useProjects } from '../../hooks/useProjects';
+import { useProjects } from '../../hooks/front/useProjects';
 import Reveal from '../../components/ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 import ProjectCard from '../../components/ui/ProjectCard';
-import { useCMS } from '../../hooks/useCMS';
+import { useCMS } from '../../hooks/front/useCMS';
 
 const ReadyMadeHousesPage = () => {
   const { filteredProjects, favorites, toggleFavorite, projectImages } = useProjects();

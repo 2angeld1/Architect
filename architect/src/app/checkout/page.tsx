@@ -7,7 +7,7 @@ import PaymentInfoForm from '../../components/checkout/PaymentInfoForm';
 import ReviewOrder from '../../components/checkout/ReviewOrder';
 import { ShieldCheck, Truck, CreditCard, Building2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCheckout } from '../../hooks/useCheckout';
+import { useCheckout } from '../../hooks/front/useCheckout';
 
 const CheckoutPage = () => {
   const { currentStep, selectedProject, formatPrice, showSidebar } = useCheckout();

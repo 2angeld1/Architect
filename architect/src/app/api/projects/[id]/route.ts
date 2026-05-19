@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { cmsEvents } from '@/lib/cmsEvents';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -46,6 +47,9 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       where: { id },
     });
 
+    // Disparar recarga en tiempo real en los clientes
+    cmsEvents.broadcastCMSChange('global');
+
     return NextResponse.json({
       success: true,
       message: 'Proyecto eliminado con éxito',
@@ -87,6 +91,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         isActive: body.isActive !== undefined ? Boolean(body.isActive) : undefined,
       },
     });
+
+    // Disparar recarga en tiempo real en los clientes
+    cmsEvents.broadcastCMSChange('global');
 
     return NextResponse.json({
       success: true,

@@ -1,6 +1,7 @@
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCheckoutStore } from '../store/checkoutStore';
+import { useCheckoutStore } from '../../store/checkoutStore';
 
 export const useReviewOrder = () => {
   const router = useRouter();
@@ -14,7 +15,6 @@ export const useReviewOrder = () => {
     resetCheckout 
   } = useCheckoutStore();
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   const formatPrice = (price: number, currency: string) => {
@@ -37,12 +37,10 @@ export const useReviewOrder = () => {
     }
   };
 
-  const handleConfirmReservation = async () => {
-    if (!acceptTerms) return;
-    
-    setIsSubmitting(true);
-    
-    try {
+  const { mutate: confirmReservation, isPending: isSubmitting } = useMutation({
+    mutationFn: async () => {
+      if (!acceptTerms) return;
+
       const response = await fetch('/api/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,17 +58,22 @@ export const useReviewOrder = () => {
         throw new Error(data.error || 'Ocurrió un error al procesar tu reserva.');
       }
       
-      const reservationId = data.reservationId;
-      
-      // Limpiar el checkout y navegar a confirmación
+      return data.reservationId;
+    },
+    onSuccess: (reservationId) => {
+      if (!reservationId) return;
       resetCheckout();
       router.push(`/confirmacion/${reservationId}`);
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       console.error('Error al procesar la reserva:', error);
       alert(error.message || 'Error de red al procesar tu reserva. Inténtalo de nuevo.');
-    } finally {
-      setIsSubmitting(false);
     }
+  });
+
+  const handleConfirmReservation = () => {
+    if (!acceptTerms) return;
+    confirmReservation();
   };
 
   return {

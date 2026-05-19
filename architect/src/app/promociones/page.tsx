@@ -1,7 +1,7 @@
 'use client';
 
 import { Percent } from 'lucide-react';
-import { useProjects } from '../../hooks/useProjects';
+import { useProjects } from '../../hooks/front/useProjects';
 import Reveal from '../../components/ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 import ProjectCard from '../../components/ui/ProjectCard';

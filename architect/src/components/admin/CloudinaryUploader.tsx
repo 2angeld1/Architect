@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, X, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { fadeIn } from '@/animations/variants';
 
 interface Props {
   onUpload: (url: string) => void;
@@ -96,8 +97,9 @@ export default function CloudinaryUploader({ onUpload, onRemove, label = 'Subir 
           
           {isUploading ? (
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              variants={fadeIn}
+              initial="hidden"
+              animate="visible"
               className="flex flex-col items-center text-zinc-400"
             >
               <Loader2 className="w-8 h-8 animate-spin mb-3 text-indigo-500" />
@@ -105,8 +107,9 @@ export default function CloudinaryUploader({ onUpload, onRemove, label = 'Subir 
             </motion.div>
           ) : (
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              variants={fadeIn}
+              initial="hidden"
+              animate="visible"
               className="flex flex-col items-center text-zinc-400"
             >
               <UploadCloud className={`w-10 h-10 mb-3 ${isDragActive ? 'text-indigo-400' : 'text-zinc-500'}`} />

@@ -1,7 +1,7 @@
 'use client';
 
 import { Grid3X3 } from 'lucide-react';
-import { useCategoriesPage } from '../../hooks/useCategoriesPage';
+import { useCategoriesPage } from '../../hooks/front/useCategoriesPage';
 import Reveal from '../../components/ui/Reveal';
 import { slideUp, fadeIn } from '../../animations/variants';
 import CategoryCard from '../../components/ui/CategoryCard';

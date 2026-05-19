@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useCheckoutStore } from '../store/checkoutStore';
+import { useCheckoutStore } from '../../store/checkoutStore';
 
 export const useCheckout = () => {
   const { currentStep, selectedProject, goToStep } = useCheckoutStore();

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { cmsEvents } from '@/lib/cmsEvents';
 
 export async function GET() {
   try {
@@ -38,6 +39,9 @@ export async function POST(request: Request) {
         isActive: true,
       }
     });
+
+    // Disparar recarga en tiempo real en los clientes
+    cmsEvents.broadcastCMSChange('global');
 
     return NextResponse.json({
       success: true,

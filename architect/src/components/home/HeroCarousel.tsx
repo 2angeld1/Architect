@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight, Search, Loader2 } from 'lucide-react';
-import { useHeroCarousel } from '../../hooks/useHeroCarousel';
+import { useHeroCarousel } from '../../hooks/front/useHeroCarousel';
 import { quickCategories } from '../../data/home';
 
 const HeroCarousel = () => {

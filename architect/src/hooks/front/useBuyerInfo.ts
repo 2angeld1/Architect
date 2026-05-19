@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useCheckoutStore } from '../store/checkoutStore';
-import type { BuyerInfo } from '../types';
+import { useCheckoutStore } from '../../store/checkoutStore';
+import type { BuyerInfo } from '../../types';
 
 export const useBuyerInfo = () => {
   const { buyerInfo, setBuyerInfo, nextStep, prevStep } = useCheckoutStore();

@@ -1,5 +1,5 @@
 import { CreditCard, Building2, FileText, Lock, ShieldCheck, Wallet, ArrowLeft, ArrowRight } from 'lucide-react';
-import { usePaymentInfo } from '../../hooks/usePaymentInfo';
+import { usePaymentInfo } from '../../hooks/front/usePaymentInfo';
 import Reveal from '../ui/Reveal';
 import { fadeIn, slideUp } from '../../animations/variants';
 import { paymentMethods } from '../../data/checkout';

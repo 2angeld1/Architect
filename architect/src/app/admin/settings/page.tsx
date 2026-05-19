@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { 
   User, 
   Lock, 
@@ -16,101 +15,41 @@ import {
   ShieldCheck,
   Send
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useSettingsPage } from '@/hooks/admin/useSettingsPage';
+import { slideUp } from '@/animations/variants';
 
 export default function SettingsPage() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  // Perfil Admin
-  const [adminName, setAdminName] = useState('');
-  const [adminEmail, setAdminEmail] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
-
-  // Variables Globales
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
-  const [officeAddress, setOfficeAddress] = useState('');
-  const [instagramUrl, setInstagramUrl] = useState('');
-  const [facebookUrl, setFacebookUrl] = useState('');
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const response = await fetch('/api/admin/settings');
-      const data = await response.json();
-      if (response.ok) {
-        setAdminName(data.user.name || '');
-        setAdminEmail(data.user.email || '');
-        
-        // Cargar configs globales
-        setContactEmail(data.settings.contact_email || '');
-        setContactPhone(data.settings.contact_phone || '');
-        setOfficeAddress(data.settings.contact_address || '');
-        setInstagramUrl(data.settings.social_instagram || '');
-        setFacebookUrl(data.settings.social_facebook || '');
-      }
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError('');
-    setSuccess('');
-
-    if (newPassword && newPassword !== confirmNewPassword) {
-      setError('Las nuevas contraseñas no coinciden');
-      setSaving(false);
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: adminName,
-          currentPassword,
-          newPassword,
-          contactEmail,
-          contactPhone,
-          officeAddress,
-          instagramUrl,
-          facebookUrl
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Ocurrió un error al guardar las configuraciones.');
-      }
-
-      setSuccess('¡Configuraciones guardadas y actualizadas con éxito!');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmNewPassword('');
-    } catch (err: any) {
-      setError(err.message || 'Error al guardar');
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    loading,
+    saving,
+    error,
+    success,
+    adminName,
+    setAdminName,
+    adminEmail,
+    currentPassword,
+    setCurrentPassword,
+    newPassword,
+    setNewPassword,
+    confirmNewPassword,
+    setConfirmNewPassword,
+    contactEmail,
+    setContactEmail,
+    contactPhone,
+    setContactPhone,
+    officeAddress,
+    setOfficeAddress,
+    instagramUrl,
+    setInstagramUrl,
+    facebookUrl,
+    setFacebookUrl,
+    handleSubmit,
+  } = useSettingsPage();
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-zinc-400">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-zinc-400 font-sans">
         <Loader2 className="w-8 h-8 animate-spin text-white mb-4" />
         <p className="text-sm font-light">Cargando configuraciones...</p>
       </div>
@@ -118,7 +57,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8 font-sans pb-12">
+    <div className="space-y-8 font-sans pb-12 text-zinc-300">
       {/* Page Header */}
       <div className="border-b border-zinc-900 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -144,7 +83,12 @@ export default function SettingsPage() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Side: Profile & Password */}
-        <div className="lg:col-span-2 space-y-8">
+        <motion.div 
+          variants={slideUp}
+          initial="hidden"
+          animate="visible"
+          className="lg:col-span-2 space-y-8"
+        >
           
           {/* Admin Account Section */}
           <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 md:p-8 space-y-6">
@@ -162,7 +106,7 @@ export default function SettingsPage() {
                   type="text"
                   value={adminName}
                   onChange={(e) => setAdminName(e.target.value)}
-                  className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-750 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                  className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                 />
               </div>
 
@@ -195,7 +139,7 @@ export default function SettingsPage() {
                     type="password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="••••••••••••"
                   />
                 </div>
@@ -208,7 +152,7 @@ export default function SettingsPage() {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="Mínimo 6 caracteres"
                   />
                 </div>
@@ -221,7 +165,7 @@ export default function SettingsPage() {
                     type="password"
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full px-4 py-3 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="••••••••••••"
                   />
                 </div>
@@ -249,7 +193,7 @@ export default function SettingsPage() {
                     type="email"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full pl-10 pr-4 py-3 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="hola@architect.com"
                   />
                 </div>
@@ -267,7 +211,7 @@ export default function SettingsPage() {
                     type="text"
                     value={contactPhone}
                     onChange={(e) => setContactPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full pl-10 pr-4 py-3 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="+507 6000-0000"
                   />
                 </div>
@@ -285,17 +229,22 @@ export default function SettingsPage() {
                     type="text"
                     value={officeAddress}
                     onChange={(e) => setOfficeAddress(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full pl-10 pr-4 py-3 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="Ciudad del Saber, Edif. 230, Panamá"
                   />
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Side: Social Media & Brevo SMTP details */}
-        <div className="space-y-8">
+        <motion.div 
+          variants={slideUp}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8"
+        >
           
           {/* Social Media Links */}
           <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 space-y-6">
@@ -317,7 +266,7 @@ export default function SettingsPage() {
                     type="text"
                     value={instagramUrl}
                     onChange={(e) => setInstagramUrl(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="https://instagram.com/architect"
                   />
                 </div>
@@ -335,7 +284,7 @@ export default function SettingsPage() {
                     type="text"
                     value={facebookUrl}
                     onChange={(e) => setFacebookUrl(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/40 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/40 border border-zinc-850 rounded-xl text-sm text-zinc-100 placeholder-zinc-650 focus:outline-none focus:ring-1 focus:ring-zinc-800"
                     placeholder="https://facebook.com/architect"
                   />
                 </div>
@@ -382,20 +331,20 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-transparent text-sm font-semibold text-zinc-950 bg-white hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-white/5 active:scale-[0.98]"
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-transparent text-sm font-semibold text-zinc-955 bg-white hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-white/5 active:scale-[0.98]"
             >
               {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+                <Loader2 className="w-4 h-4 animate-spin text-zinc-955" />
               ) : (
                 <>
-                  <Send className="w-4 h-4 text-zinc-950" />
+                  <Send className="w-4 h-4 text-zinc-955" />
                   <span>Guardar Cambios</span>
                 </>
               )}
             </button>
           </div>
 
-        </div>
+        </motion.div>
       </form>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowRight, Lightbulb, MapPin, Grid, Info } from 'lucide-react';
-import { useCategoryDetail } from '../../../hooks/useCategoryDetail';
+import { useCategoryDetail } from '../../../hooks/front/useCategoryDetail';
 import Reveal from '../../../components/ui/Reveal';
 import { fadeIn, slideUp } from '../../../animations/variants';
 import ProjectCard from '../../../components/ui/ProjectCard';

@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { mockProjects } from '../mocks/projects';
-import { searchPhotos } from '../services/unsplash';
-import type { Project } from '../types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import type { Project } from '../../types';
 
 export const useProjects = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -13,58 +13,54 @@ export const useProjects = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'newest'>('newest');
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [realProjects, setRealProjects] = useState<Project[]>([]);
-  const [projectImages, setProjectImages] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch real projects from DB
+  // Fetch real projects from DB using React Query
+  const { data: realProjects = [], isLoading } = useQuery<Project[]>({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const res = await fetch('/api/projects');
+      const json = await res.json();
+      if (!json.success) throw new Error('Failed to load projects');
+      return json.data || [];
+    },
+  });
+
+  // Listen to real-time events to auto-refresh projects list
   useEffect(() => {
-    const fetchRealProjects = async () => {
+    const eventSource = new EventSource('/api/cms/events?page=global');
+
+    eventSource.onmessage = (event) => {
       try {
-        const res = await fetch('/api/projects');
-        const json = await res.json();
-        if (json.success && json.data) {
-          setRealProjects(json.data);
+        const data = JSON.parse(event.data);
+        if (data.type === 'update') {
+          console.log('[Realtime Projects] Updating projects list in real-time...');
+          queryClient.invalidateQueries({ queryKey: ['projects'] });
         }
       } catch (err) {
-        console.error('Error fetching real projects:', err);
+        console.error('Failed to parse SSE data for projects', err);
       }
     };
-    fetchRealProjects();
-  }, []);
 
-  // Handle Unsplash images for mocks, and real images for real projects
-  useEffect(() => {
-    const fetchImages = async () => {
-      setIsLoading(true);
-      const photos = await searchPhotos('modern house architecture', 12);
-      const imageMap: Record<string, string> = {};
-      
-      // Assign Unsplash images to mocks
-      mockProjects.forEach((project, index) => {
-        if (photos[index % photos.length]) {
-          imageMap[project.id] = `${photos[index % photos.length].urls.raw}&w=600&q=80&fit=crop`;
-        }
-      });
-
-      // Assign actual images to real projects
-      realProjects.forEach(project => {
-        if (project.images && project.images.length > 0) {
-          imageMap[project.id] = project.images[0];
-        } else {
-          imageMap[project.id] = 'https://images.unsplash.com/photo-1600596542815-2a4d9fdb2278?auto=format&fit=crop&w=600&q=80';
-        }
-      });
-
-      setProjectImages(imageMap);
-      setIsLoading(false);
+    return () => {
+      eventSource.close();
     };
-    fetchImages();
+  }, [queryClient]);
+
+  // Map actual images for real projects
+  const projectImages = useMemo(() => {
+    const imageMap: Record<string, string> = {};
+    realProjects.forEach(project => {
+      if (project.images && project.images.length > 0) {
+        imageMap[project.id] = project.images[0];
+      } else {
+        imageMap[project.id] = 'https://images.unsplash.com/photo-1600596542815-2a4d9fdb2278?auto=format&fit=crop&w=600&q=80';
+      }
+    });
+    return imageMap;
   }, [realProjects]);
 
   const allProjects = useMemo(() => {
-    // Avoid duplicate IDs just in case, though unlikely
-    return [...realProjects, ...mockProjects];
+    return [...realProjects];
   }, [realProjects]);
 
   const uniqueCategories = useMemo(() => {
@@ -84,7 +80,7 @@ export const useProjects = () => {
         if (sortBy === 'price-desc') return b.price - a.price;
         return 0; // newest - default order
       });
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [searchTerm, selectedCategory, sortBy, allProjects]);
 
   const handleSelectProject = (project: Project) => {
     router.push(`/proyectos/${project.id}`);

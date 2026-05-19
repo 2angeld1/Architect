@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import { searchPhotos } from '../services/unsplash';
-import { mockProjects } from '../mocks/projects';
-import { Project } from '../types';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { searchPhotos } from '../../services/unsplash';
+import { mockProjects } from '../../mocks/projects';
+import { Project } from '../../types';
 
 export const useFeaturedProjects = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProjectImages = async () => {
+  const { data: projects = [], isLoading } = useQuery<Project[]>({
+    queryKey: ['featured-projects-home'],
+    queryFn: async () => {
       try {
-        // Take first 6 projects from mock data as featured
         const featuredBase = mockProjects.slice(0, 6);
         const photos = await searchPhotos('luxury modern house exterior', 6);
         
         if (photos.length > 0) {
-          const updatedProjects = featuredBase.map((project, index) => ({
+          return featuredBase.map((project, index) => ({
             ...project,
             images: [
               photos[index] 
@@ -25,18 +25,14 @@ export const useFeaturedProjects = () => {
               ...project.images.slice(1)
             ],
           }));
-          setProjects(updatedProjects);
-        } else {
-          setProjects(featuredBase);
         }
+        return featuredBase;
       } catch (error) {
         console.error('Error fetching project images', error);
-        setProjects(mockProjects.slice(0, 6));
+        return mockProjects.slice(0, 6);
       }
-    };
-    
-    fetchProjectImages();
-  }, []);
+    },
+  });
 
   const toggleFavorite = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -52,5 +48,6 @@ export const useFeaturedProjects = () => {
     hoveredId,
     setHoveredId,
     toggleFavorite,
+    isLoading
   };
 };

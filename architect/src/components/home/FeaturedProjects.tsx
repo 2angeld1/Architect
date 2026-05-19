@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { useFeaturedProjects } from '../../hooks/useFeaturedProjects';
+import { useFeaturedProjects } from '../../hooks/front/useFeaturedProjects';
 import ProjectCard from '../ui/ProjectCard';
 import Reveal from '../ui/Reveal';
 import { slideUp } from '../../animations/variants';
